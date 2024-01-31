@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
 import databaseClient from "./services/database.mjs";
 import * as activityControllers from "./controllers/activityControllers.js";
 
@@ -12,6 +14,8 @@ dotenv.config();
 const webServer = express();
 webServer.use(cors());
 webServer.use(express.json());
+webServer.use(helmet());
+webServer.use(morgan("dev"));
 
 // server routes
 webServer.get("/", async (req, res) => {
