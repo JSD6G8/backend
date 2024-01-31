@@ -21,12 +21,12 @@ webServer.get("/", async (req, res) => {
 
 // List activities of a user
 webServer.get("/activities/user/:userId", async (req, res) => {
-  const userId = req.params.userId;
-
   // validate if userId is a valid ObjectId
-  if (!ObjectId.isValid(userId)) {
+  if (!ObjectId.isValid(req.params.userId)) {
     return res.status(400).send("Invalid userId");
   }
+
+  const userId = req.params.userId;
 
   const activities = await databaseClient.db()
     .collection("activities")
