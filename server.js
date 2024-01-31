@@ -38,6 +38,12 @@ webServer.get("/activities/user/:userId", async (req, res) => {
 // Get an activity
 webServer.get("/activities/:activityId", async (req, res) => {
   const activityId = req.params.activityId;
+
+  // validate if activityId is a valid ObjectId
+  if (!ObjectId.isValid(activityId)) {
+    return res.status(400).send("Invalid activityId");
+  }
+
   const activity = await databaseClient.db()
     .collection("activities")
     .findOne({ _id: new ObjectId(activityId) });
