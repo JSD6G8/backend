@@ -1,6 +1,6 @@
 import databaseClient from "../services/database.mjs";
 import { ObjectId } from "mongodb";
-import { requestSchema } from "./utils.js";
+import { requestSchema } from "./requestSchema.js";
 
 export const listActivities = async (req, res) => {
   // validate if userId is a valid ObjectId

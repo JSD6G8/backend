@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import databaseClient from "./services/database.mjs";
-import activityControllers from "./controllers/activityControllers.js";
+import * as activityControllers from "./controllers/activityControllers.js";
 
 const HOSTNAME = process.env.SERVER_IP || "127.0.0.1";
 const PORT = process.env.SERVER_PORT || 3000;
