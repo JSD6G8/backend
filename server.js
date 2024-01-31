@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import databaseClient from "./services/database.mjs";
 import { ObjectId } from "mongodb";
-import { requestSchema } from "./models/utils.js";
+import { requestSchema } from "./controllers/utils.js";
 
 const HOSTNAME = process.env.SERVER_IP || "127.0.0.1";
 const PORT = process.env.SERVER_PORT || 3000;
