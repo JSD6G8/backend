@@ -75,12 +75,17 @@ webServer.put("/activities/:activityId", async (req, res) => {
 webServer.delete("/activities/:activityId", async (req, res) => {
   const activityId = req.params.activityId;
 
+  const deletedActivity = await databaseClient.db()
+    .collection("activities")
+    .findOne({ _id: new ObjectId(activityId) });
+
   const result = await databaseClient.db()
     .collection("activities")
     .deleteOne({ _id: new ObjectId(activityId) });
 
   res.send({ 
     result,
+    data: deletedActivity,
   });
 });
 
