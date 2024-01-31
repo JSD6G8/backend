@@ -88,7 +88,15 @@ webServer.put("/activities/:activityId", async (req, res) => {
     return res.status(400).send(error.details[0].message);
   }
 
-  console.log(req.body);
+  // validate if activityId is a valid ObjectId
+  if (!ObjectId.isValid(req.params.activityId)) {
+    return res.status(400).send("Invalid activityId");
+  }
+
+  // validate if userId is a valid ObjectId
+  if (!ObjectId.isValid(req.body.userId)) {
+    return res.status(400).send("Invalid userId");
+  }  
 
   // update activity in database
   const activityId = req.params.activityId;
