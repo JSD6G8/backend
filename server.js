@@ -58,6 +58,11 @@ webServer.post("/activities", async (req, res) => {
     return res.status(400).send(error.details[0].message);
   }
 
+  // validate if userId is a valid ObjectId
+  if (!ObjectId.isValid(req.body.userId)) {
+    return res.status(400).send("Invalid userId");
+  }
+
   // insert activity into database
   const userId = new ObjectId(req.body.userId);
   const activity = { ...req.body, userId };
