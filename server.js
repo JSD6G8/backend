@@ -22,10 +22,16 @@ webServer.get("/", async (req, res) => {
 // List activities of a user
 webServer.get("/activities/user/:userId", async (req, res) => {
   const userId = req.params.userId;
+
+  // validate if userId is a valid ObjectId
+  if (!ObjectId.isValid(userId)) {
+    return res.status(400).send("Invalid userId");
+  }
+
   const activities = await databaseClient.db()
     .collection("activities")
     .find({ userId: new ObjectId(userId) })
-    .toArray();
+    .toArray();  
   res.send(activities);
 });
 
@@ -70,6 +76,8 @@ webServer.put("/activities/:activityId", async (req, res) => {
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
+
+  console.log(req.body);
 
   // update activity in database
   const activityId = req.params.activityId;
