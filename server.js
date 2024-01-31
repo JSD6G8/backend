@@ -115,6 +115,11 @@ webServer.put("/activities/:activityId", async (req, res) => {
 
 // Delete an activity
 webServer.delete("/activities/:activityId", async (req, res) => {
+  // validate if activityId is a valid ObjectId
+  if (!ObjectId.isValid(req.params.activityId)) {
+    return res.status(400).send("Invalid activityId");
+  }
+
   const activityId = req.params.activityId;
 
   const deletedActivity = await databaseClient.db()
