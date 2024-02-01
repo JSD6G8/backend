@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import { ObjectId } from "mongodb";
 import databaseClient from "./services/database.mjs";
+import { checkMissing } from "./utils/requestUtils";
 
 // import value from .env
 dotenv.config();
@@ -20,10 +21,19 @@ webServer.get("/", (req, res) => {
 
 // ** (assumed they have a token for access)
 // Server Route : GET all activities of individual user
+webServer.get("/activities/user/:userId", async (req, res) => {});
+
 // Server Route : GET specific activity information
+webServer.get("/activities/:activityId", async (req, res) => {});
+
 // Server Route : POST to create new activity
+webServer.post("/activities", async (req, res) => {});
+
 // Server Route : PUT to edit selected activity
+webServer.put("/activities/:activityId", async (req, res) => {});
+
 // Server Route : DELETE selected activity
+webServer.put("/activities/:activityId", async (req, res) => {});
 
 // Initialize server
 const newServer = webServer.listen(port, ip, () => {
