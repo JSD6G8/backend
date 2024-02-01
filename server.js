@@ -3,16 +3,18 @@ import dotenv from "dotenv";
 import express from "express";
 import { ObjectId } from "mongodb";
 import databaseClient from "./services/database.mjs";
-import { checkMissing } from "./utils/requestUtils";
+import { checkMissing } from "./utils/requestUtils.js";
 
-// import value from .env
+// Import value from .env
 dotenv.config();
 const { SERVER_IP: ip, SERVER_PORT: port } = process.env;
 
-// setup webServer variable and essential middlewares
+// Setup webServer variable and essential middlewares
 const webServer = express();
 webServer.use(cors());
 webServer.use(express.json());
+
+// Declare required field
 
 // Server Route : Welcome Test
 webServer.get("/", (req, res) => {
@@ -21,7 +23,17 @@ webServer.get("/", (req, res) => {
 
 // ** (assumed they have a token for access)
 // Server Route : GET all activities of individual user
-webServer.get("/activities/user/:userId", async (req, res) => {});
+webServer.get("/activities/user/:userId", async (req, res) => {
+  const user = req.params.userId;
+
+  const allActivities = await databaseClient
+    .db()
+    .collection("loglife_activities")
+    .find({ userId: new ObjectId(user) })
+    .toArray();
+
+  res.json(allActivities);
+});
 
 // Server Route : GET specific activity information
 webServer.get("/activities/:activityId", async (req, res) => {});
