@@ -36,7 +36,28 @@ webServer.get("/activities/user/:userId", async (req, res) => {
 });
 
 // Server Route : GET specific activity information
-webServer.get("/activities/:activityId", async (req, res) => {});
+webServer.get("/activities/:activityId", async (req, res) => {
+  const requestedActivity = req.params.activityId;
+
+  // Use try...catch to return 500 error
+  try {
+    const activity = await databaseClient
+      .db()
+      .collection("loglife_activities")
+      .find({ _id: new ObjectId(requestedActivity) })
+      .toArray();
+
+    // Check whether req.params is correct or not, if result is empty array => return 404
+    if (activity.length === 0) {
+      res.status(404).json({ error: "Activity not found" });
+    } else {
+      res.json(activity);
+    }
+  } catch (error) {
+    console.error("ERROR FETCHING ACTIVITY:", error);
+    res.status(500).json({ error: "Internal Server error" });
+  }
+});
 
 // Server Route : POST to create new activity
 webServer.post("/activities", async (req, res) => {});
