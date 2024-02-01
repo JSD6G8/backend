@@ -22,7 +22,7 @@ webServer.get("/", (req, res) => {
 });
 
 // ** (assumed they have a token for access)
-// Server Route : GET all activities of individual user
+// ** Server Route : GET all activities of individual user
 webServer.get("/activities/user/:userId", async (req, res) => {
   const user = req.params.userId;
 
@@ -35,7 +35,7 @@ webServer.get("/activities/user/:userId", async (req, res) => {
   res.json(allActivities);
 });
 
-// Server Route : GET specific activity information
+// ** Server Route : GET specific activity information
 webServer.get("/activities/:activityId", async (req, res) => {
   const requestedActivity = req.params.activityId;
 
@@ -59,14 +59,36 @@ webServer.get("/activities/:activityId", async (req, res) => {
   }
 });
 
-// Server Route : POST to create new activity
+// !! Server Route : POST to create new activity
 webServer.post("/activities", async (req, res) => {});
 
-// Server Route : PUT to edit selected activity
+// !! Server Route : PUT to edit selected activity
 webServer.put("/activities/:activityId", async (req, res) => {});
 
-// Server Route : DELETE selected activity
-webServer.put("/activities/:activityId", async (req, res) => {});
+// ** Server Route : DELETE selected activity
+webServer.delete("/activities/:activityId", async (req, res) => {
+  const requestedActivity = req.params.activityId;
+
+  // Use try...catch to return 500 error
+  try {
+    const activity = await databaseClient
+      .db()
+      .collection("loglife_activities")
+      .deleteOne({ _id: new ObjectId(requestedActivity) });
+
+    // Check whether MongoDB responded deleteCount as 1 then return 200 if not, return 404
+    if (activity.deletedCount === 1) {
+      res.status(200).json({
+        result: `Activity ${requestedActivity} deleted successfully`,
+      });
+    } else {
+      res.status(404).json({ error: "Activity not found" });
+    }
+  } catch (error) {
+    console.error("ERROR FETCHING ACTIVITY:", error);
+    res.status(500).json({ error: "Internal Server error" });
+  }
+});
 
 // Initialize server
 const newServer = webServer.listen(port, ip, () => {
