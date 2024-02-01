@@ -1,9 +1,9 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import { ObjectId } from "mongodb";
+import { Db, ObjectId } from "mongodb";
 import databaseClient from "./services/database.mjs";
-import { checkMissing } from "./utils/requestUtils.js";
+// import { checkMissing } from "./utils/requestUtils.js";
 
 // Import value from .env
 dotenv.config();
@@ -13,8 +13,6 @@ const { SERVER_IP: ip, SERVER_PORT: port } = process.env;
 const webServer = express();
 webServer.use(cors());
 webServer.use(express.json());
-
-// Declare required field
 
 // Server Route : Welcome Test
 webServer.get("/", (req, res) => {
@@ -60,7 +58,17 @@ webServer.get("/activities/:activityId", async (req, res) => {
 });
 
 // !! Server Route : POST to create new activity
-webServer.post("/activities", async (req, res) => {});
+webServer.post("/activities", async (req, res) => {
+  const userId = new ObjectId(req.body.userId);
+  req.body.userId = userId;
+
+  const insert = await databaseClient
+    .db()
+    .collection("loglife_activities")
+    .insertOne(req.body);
+
+  res.json({ data: { activityId: insert.insertedId } });
+});
 
 // !! Server Route : PUT to edit selected activity
 webServer.put("/activities/:activityId", async (req, res) => {});
