@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Backend for LogLife Application",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "nodemon server.js --ignore '*.json'",
     "test": "echo \"Error: no test specified\" && exit 1"
