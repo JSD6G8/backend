@@ -8,7 +8,6 @@ import * as activityControllers from "./controllers/activityControllers.js";
 
 // TODO: update status codes appropriately
 
-const HOSTNAME = process.env.SERVER_IP || "127.0.0.1";
 const PORT = process.env.SERVER_PORT || 3000;
 
 dotenv.config();
@@ -31,9 +30,8 @@ webServer.put("/activities/:activityId", activityControllers.updateActivity);
 webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
 
 // initialize web server
-const currentServer = webServer.listen(PORT, HOSTNAME, () => {
+const currentServer = webServer.listen(PORT, () => {
   console.log(`Database connected: ${databaseClient.db().databaseName}`)
-  console.log(`Server running at http://${HOSTNAME}:${PORT}/`);
 });
 
 // clean up on exit
