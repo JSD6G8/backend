@@ -4,9 +4,9 @@ import { requestSchema } from "./requestSchema.js";
 
 export const listActivities = async (req, res) => {
   // validate if userId is a valid ObjectId
-  // if (!ObjectId.isValid(req.params.userId)) {
-  //   return res.status(400).send("Invalid userId");
-  // }
+  if (!ObjectId.isValid(req.params.userId)) {
+    return res.status(400).send("Invalid userId");
+  }
 
   const userId = req.params.userId;
 
@@ -23,12 +23,12 @@ export const listActivities = async (req, res) => {
 };
 
 export const getActivity = async (req, res) => {
-  const activityId = req.params.activityId;
-
   // validate if activityId is a valid ObjectId
   if (!ObjectId.isValid(activityId)) {
     return res.status(400).send("Invalid activityId");
   }
+
+  const activityId = req.params.activityId;
 
   try {
     const activity = await databaseClient
@@ -65,7 +65,7 @@ export const createActivity = async (req, res) => {
       .insertOne(activity);
     returnedActivity.activityId = result.insertedId;
 
-    res.send({
+    res.status(201).send({
       result,
       data: returnedActivity,
     });
