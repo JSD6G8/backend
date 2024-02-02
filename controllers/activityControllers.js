@@ -4,18 +4,22 @@ import { requestSchema } from "./requestSchema.js";
 
 export const listActivities = async (req, res) => {
   // validate if userId is a valid ObjectId
-  if (!ObjectId.isValid(req.params.userId)) {
-    return res.status(400).send("Invalid userId");
-  }
+  // if (!ObjectId.isValid(req.params.userId)) {
+  //   return res.status(400).send("Invalid userId");
+  // }
 
   const userId = req.params.userId;
 
-  const activities = await databaseClient
-    .db()
-    .collection("activities")
-    .find({ userId: new ObjectId(userId) })
-    .toArray();
-  res.send(activities);
+  try {
+    const activities = await databaseClient
+      .db()
+      .collection("activities")
+      .find({ userId: new ObjectId(userId) })
+      .toArray();
+    res.send(activities);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 };
 
 export const getActivity = async (req, res) => {
@@ -26,12 +30,16 @@ export const getActivity = async (req, res) => {
     return res.status(400).send("Invalid activityId");
   }
 
-  const activity = await databaseClient
-    .db()
-    .collection("activities")
-    .findOne({ _id: new ObjectId(activityId) });
-  res.send(activity);
-}
+  try {
+    const activity = await databaseClient
+      .db()
+      .collection("activities")
+      .findOne({ _id: new ObjectId(activityId) });
+    res.send(activity);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
 
 export const createActivity = async (req, res) => {
   // validiate request body
@@ -50,10 +58,14 @@ export const createActivity = async (req, res) => {
   const activity = { ...req.body, userId };
   const returnedActivity = { activityId: "", ...activity };
 
-  const result = await databaseClient
-    .db()
-    .collection("activities")
-    .insertOne(activity);
+  try {
+    const result = await databaseClient
+      .db()
+      .collection("activities")
+      .insertOne(activity);
+  } catch {
+    res.status(500).send(error.message);
+  }
 
   returnedActivity.activityId = result.insertedId;
 
@@ -61,7 +73,7 @@ export const createActivity = async (req, res) => {
     result,
     data: returnedActivity,
   });
-}
+};
 
 export const updateActivity = async (req, res) => {
   // validiate request body
@@ -85,16 +97,20 @@ export const updateActivity = async (req, res) => {
   const activity = { ...req.body, userId };
   const activityId = new ObjectId(req.params.activityId);
 
-  const result = await databaseClient
-    .db()
-    .collection("activities")
-    .updateOne({ _id: activityId }, { $set: activity });
+  try {
+    const result = await databaseClient
+      .db()
+      .collection("activities")
+      .updateOne({ _id: activityId }, { $set: activity });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 
   res.send({
     result,
     data: activity,
   });
-}
+};
 
 export const deleteActivity = async (req, res) => {
   // validate if activityId is a valid ObjectId
@@ -105,12 +121,16 @@ export const deleteActivity = async (req, res) => {
   // delete activity from database
   const activityId = new ObjectId(req.params.activityId);
 
-  const result = await databaseClient
-    .db()
-    .collection("activities")
-    .deleteOne({ _id: activityId });
+  try {
+    const result = await databaseClient
+      .db()
+      .collection("activities")
+      .deleteOne({ _id: activityId });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 
   res.send({
     result,
   });
-}
+};

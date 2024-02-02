@@ -6,6 +6,8 @@ import morgan from "morgan";
 import databaseClient from "./services/database.mjs";
 import * as activityControllers from "./controllers/activityControllers.js";
 
+// TODO: update status codes appropriately
+
 const HOSTNAME = process.env.SERVER_IP || "127.0.0.1";
 const PORT = process.env.SERVER_PORT || 3000;
 
