@@ -63,16 +63,15 @@ export const createActivity = async (req, res) => {
       .db()
       .collection("activities")
       .insertOne(activity);
+    returnedActivity.activityId = result.insertedId;
+
+    res.send({
+      result,
+      data: returnedActivity,
+    });
   } catch {
     res.status(500).send(error.message);
   }
-
-  returnedActivity.activityId = result.insertedId;
-
-  res.send({
-    result,
-    data: returnedActivity,
-  });
 };
 
 export const updateActivity = async (req, res) => {
@@ -102,14 +101,13 @@ export const updateActivity = async (req, res) => {
       .db()
       .collection("activities")
       .updateOne({ _id: activityId }, { $set: activity });
+    res.send({
+      result,
+      data: activity,
+    });
   } catch (error) {
     res.status(500).send(error.message);
   }
-
-  res.send({
-    result,
-    data: activity,
-  });
 };
 
 export const deleteActivity = async (req, res) => {
@@ -126,11 +124,10 @@ export const deleteActivity = async (req, res) => {
       .db()
       .collection("activities")
       .deleteOne({ _id: activityId });
+    res.send({
+      result,
+    });
   } catch (error) {
     res.status(500).send(error.message);
   }
-
-  res.send({
-    result,
-  });
 };
