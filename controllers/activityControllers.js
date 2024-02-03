@@ -2,6 +2,23 @@ import databaseClient from "../services/database.mjs";
 import { ObjectId } from "mongodb";
 import { requestSchema } from "./requestSchema.js";
 
+/* 
+  listActivities query parameters:
+    type: null: all activity types,
+    type: string: matching string. i.e. "Running", etc.,
+
+    sort: null: descending by date + startTime,
+    sort: "date-desc": descending by date + startTime,
+    sort: "date-asc": ascending by date + startTime,
+
+    skip: null: 0 skip,
+    skip: number: skip [number] of docs,
+
+    0 < take <= 100
+    take: null: limit to 20 docs,
+    take: number: limit to [number] of docs,
+*/
+
 export const listActivities = async (req, res) => {
   // validate if userId is a valid ObjectId
   if (!ObjectId.isValid(req.params.userId)) {
