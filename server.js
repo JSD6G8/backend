@@ -7,7 +7,7 @@ import databaseClient from "./services/database.mjs";
 import * as activityControllers from "./controllers/activityControllers.js";
 
 // TODO: update status codes appropriately
-
+// const HOSTNAME = process.env.SERVER_HOSTNAME;
 const PORT = process.env.SERVER_PORT || 3000;
 
 dotenv.config();
