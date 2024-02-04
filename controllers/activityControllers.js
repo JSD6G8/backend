@@ -63,10 +63,10 @@ export const listActivities = async (req, res) => {
 
 export const getActivity = async (req, res) => {
   // validate if activityId is a valid ObjectId
-  if (!ObjectId.isValid(activityId)) {
+  if (!ObjectId.isValid(req.params.activityId)) {
     return res.status(400).send("Invalid activityId");
   }
-
+  
   const activityId = req.params.activityId;
 
   try {
