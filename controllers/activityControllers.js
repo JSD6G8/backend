@@ -47,15 +47,6 @@ export const listActivities = async (req, res) => {
   const takeOptions = take ? Math.min(parseInt(take), 100) : 20;
 
   try {
-    // const activities = await databaseClient
-    //   .db()
-    //   .collection("activities")
-    //   .find(filter)
-    //   .sort(sortOptions)
-    //   .skip(skipOptions)
-    //   .limit(takeOptions)
-    //   .toArray();
-    // change _id to activityId
     const activities = await databaseClient
       .db()
       .collection("activities")
@@ -68,6 +59,15 @@ export const listActivities = async (req, res) => {
           $project: {
             activityId: "$_id",
             _id: 0,
+            userId: 1,
+            title: 1,
+            description: 1,
+            type: 1,
+            startTime: 1,
+            endTime: 1,
+            date: 1,
+            duration: 1,
+            barometer: 1,
           },
         },
       ])
@@ -90,7 +90,25 @@ export const getActivity = async (req, res) => {
     const activity = await databaseClient
       .db()
       .collection("activities")
-      .findOne({ _id: new ObjectId(activityId) });
+      .aggregate([
+        { $match: { _id: new ObjectId(activityId) } },
+        {
+          $project: {
+            activityId: "$_id",
+            _id: 0,
+            userId: 1,
+            title: 1,
+            description: 1,
+            type: 1,
+            startTime: 1,
+            endTime: 1,
+            date: 1,
+            duration: 1,
+            barometer: 1,
+          },
+        },
+      ])
+      .toArray();
     res.send(activity);
   } catch (error) {
     res.status(500).send(error.message);
