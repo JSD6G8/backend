@@ -109,21 +109,6 @@ for `POST` and `PUT` endpoints
 >    "acknowledged": boolean,
 >    "insertedId": string
 >  }
->  "data": {
->    "activityId": string
->    "userId": string
->    "title": string,
->    "description": string,
->    "type": string,
->    "startTime": string,
->    "endTime": string,
->    "date": string,
->    "duration": {
->      "hour": number,
->      "minute": number
->    },
->    "barometer": string
->  }
 >}
 >```
 
@@ -137,21 +122,6 @@ for `POST` and `PUT` endpoints
 >    "upsertedId": string | null,
 >    "upsertedCount": int,
 >    "matchedCount": int
->  },
->  "data": {
->    "activityId": string
->    "userId": string
->    "title": string,
->    "description": string,
->    "type": string,
->    "startTime": string,
->    "endTime": string,
->    "date": string,
->    "duration": {
->      "hour": number,
->      "minute": number
->    },
->    "barometer": string
 >  }
 >}
 >```
