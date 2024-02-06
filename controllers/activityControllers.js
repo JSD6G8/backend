@@ -47,13 +47,30 @@ export const listActivities = async (req, res) => {
   const takeOptions = take ? Math.min(parseInt(take), 100) : 20;
 
   try {
+    // const activities = await databaseClient
+    //   .db()
+    //   .collection("activities")
+    //   .find(filter)
+    //   .sort(sortOptions)
+    //   .skip(skipOptions)
+    //   .limit(takeOptions)
+    //   .toArray();
+    // change _id to activityId
     const activities = await databaseClient
       .db()
       .collection("activities")
-      .find(filter)
-      .sort(sortOptions)
-      .skip(skipOptions)
-      .limit(takeOptions)
+      .aggregate([
+        { $match: filter },
+        { $sort: sortOptions },
+        { $skip: skipOptions },
+        { $limit: takeOptions },
+        {
+          $project: {
+            activityId: "$_id",
+            _id: 0,
+          },
+        },
+      ])
       .toArray();
     res.send(activities);
   } catch (error) {
