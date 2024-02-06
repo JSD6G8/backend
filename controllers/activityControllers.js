@@ -18,7 +18,6 @@ import { requestSchema } from "./requestSchema.js";
     take: null: limit to 20 docs,
     take: number: limit to [number] of docs,
 */
-
 export const listActivities = async (req, res) => {
   // validate if userId is a valid ObjectId
   if (!ObjectId.isValid(req.params.userId)) {
@@ -130,18 +129,14 @@ export const createActivity = async (req, res) => {
   // insert activity into database
   const userId = new ObjectId(req.body.userId);
   const activity = { ...req.body, userId };
-  const returnedActivity = { activityId: "", ...activity };
 
   try {
     const result = await databaseClient
       .db()
       .collection("activities")
       .insertOne(activity);
-    returnedActivity.activityId = result.insertedId;
-
     res.status(201).send({
       result,
-      data: returnedActivity,
     });
   } catch {
     res.status(500).send(error.message);
@@ -177,7 +172,6 @@ export const updateActivity = async (req, res) => {
       .updateOne({ _id: activityId }, { $set: activity });
     res.send({
       result,
-      data: activity,
     });
   } catch (error) {
     res.status(500).send(error.message);
