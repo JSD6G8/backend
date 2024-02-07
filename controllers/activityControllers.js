@@ -92,7 +92,8 @@ export const getActivity = async (req, res) => {
       .findOne(
         { _id: new ObjectId(activityId) },
         { projection: 
-          { _id: 0, 
+          { activityId: "$_id",
+            _id: 0, 
             userId: 1, 
             title: 1, 
             description: 1, 
