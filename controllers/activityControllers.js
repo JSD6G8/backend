@@ -89,25 +89,22 @@ export const getActivity = async (req, res) => {
     const activity = await databaseClient
       .db()
       .collection("activities")
-      .aggregate([
-        { $match: { _id: new ObjectId(activityId) } },
-        {
-          $project: {
-            activityId: "$_id",
-            _id: 0,
-            userId: 1,
-            title: 1,
-            description: 1,
-            type: 1,
-            startTime: 1,
-            endTime: 1,
-            date: 1,
-            duration: 1,
-            barometer: 1,
-          },
-        },
-      ])
-      .toArray();
+      .findOne(
+        { _id: new ObjectId(activityId) },
+        { projection: 
+          { _id: 0, 
+            userId: 1, 
+            title: 1, 
+            description: 1, 
+            type: 1, 
+            startTime: 1, 
+            endTime: 1, 
+            date: 1, 
+            duration: 1, 
+            barometer: 1 
+          } 
+        }
+      );
     res.send(activity);
   } catch (error) {
     res.status(500).send(error.message);
