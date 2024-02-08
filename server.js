@@ -5,10 +5,12 @@ import helmet from "helmet";
 import morgan from "morgan";
 import databaseClient from "./services/database.mjs";
 import * as activityControllers from "./controllers/activityControllers.js";
+import * as user from "./controllers/user.js"
 
 const PORT = process.env.SERVER_PORT || 3000;
 
 dotenv.config();
+
 
 const webServer = express();
 webServer.use(cors());
@@ -26,6 +28,7 @@ webServer.get("/activities/:activityId", activityControllers.getActivity);
 webServer.post("/activities", activityControllers.createActivity);
 webServer.put("/activities/:activityId", activityControllers.updateActivity);
 webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
+webServer.post("/signup", user.userRegister);
 
 // initialize web server
 const currentServer = webServer.listen(PORT, () => {
