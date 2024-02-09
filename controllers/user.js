@@ -17,7 +17,7 @@ export const userRegister = async (req, res) => {
 
     const oldUser = await databaseClient
       .db()
-      .collection("user")
+      .collection("users")
       .findOne({ emailAddress });
 
     if (oldUser) {
@@ -29,7 +29,7 @@ export const userRegister = async (req, res) => {
     const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
     //Create user
-    const user = await databaseClient.db().collection("user").insertOne({
+    const user = await databaseClient.db().collection("users").insertOne({
       first_name,
       last_name,
       emailAddress,
@@ -39,7 +39,7 @@ export const userRegister = async (req, res) => {
     // Token
     const user_id = await databaseClient
       .db()
-      .collection("user")
+      .collection("users")
       .findOne({ emailAddress });
 
     const jwtSecretKey = process.env.TOKEN_KEY;
@@ -70,7 +70,7 @@ export const userLogin = async (req, res) => {
 
     const user = await databaseClient
       .db()
-      .collection("user")
+      .collection("users")
       .findOne({ emailAddress });
 
     if (user && (await bcrypt.compareSync(password, user.password))) {
