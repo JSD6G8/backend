@@ -78,9 +78,9 @@ export const userLogin = async (req, res) => {
       const token = jwt.sign({ id: emailAddress }, jwtSecretKey, {
         expiresIn: "2h",
       });
-
       user.token;
       res.status(201).json({ user, token });
+
     } else {
       res.status(400).send("Invalid email or password");
     }
@@ -90,7 +90,7 @@ export const userLogin = async (req, res) => {
 };
 
 export const tokenLogin = (req, res) => {
-  res.status(200).send("Welcome");
+   res.status(200).send("Welcome");
 };
 
 export const protectedTokenLogin = [auth, tokenLogin];

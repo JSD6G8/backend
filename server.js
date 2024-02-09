@@ -6,6 +6,7 @@ import morgan from "morgan";
 import databaseClient from "./services/database.mjs";
 import * as activityControllers from "./controllers/activityControllers.js";
 import * as user from "./controllers/user.js"
+import auth from "./middleware/auth.js"
 
 
 const PORT = process.env.SERVER_PORT || 3000;
@@ -31,6 +32,7 @@ webServer.put("/activities/:activityId", activityControllers.updateActivity);
 webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
 webServer.post("/signup", user.userRegister);
 webServer.post("/login", user.userLogin);
+webServer.post("/token",auth, user.tokenLogin);
 
 
 // initialize web server

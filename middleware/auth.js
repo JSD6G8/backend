@@ -1,20 +1,22 @@
 import jwt from "jsonwebtoken";
 
-const config = process.env;
-
 const verifyToken = (req, res, next) => {
-    const token = req.body.token || req.query.token || req.headers['x-access-token'];
+    const  authHeaders = req.headers['x-access-token']
+    let authToken = ''
 
-    if(!token) {
+    if(!authHeaders) {
         return res.status(403).send("token is required");
     }
 
     try {
-        const decode = jwt.verify(token, config.TOKEN_KEY);
-        req.user = decode
-        
+        if (authHeaders) {
+            authToken = authHeaders;
+        }
+        console.log('token',authToken);
+        const user = jwt.verify(authToken, process.env.TOKEN_KEY)
+        console.log('user',user);
     } catch (error) {
-        return res.status(401).send("Invalid token")
+        return res.status(401).send("Invalid token");
     }
 
     return next();
