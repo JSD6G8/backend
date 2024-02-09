@@ -1,8 +1,12 @@
+
 import databaseClient from "../services/database.mjs";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { requestUser, requestUserLogin } from "./userrequest.js";
 import auth from "../middleware/auth.js";
+
+//TODO projection
+//TODO email => uid
 
 // register
 export const userRegister = async (req, res) => {
@@ -56,7 +60,9 @@ export const userRegister = async (req, res) => {
   }
 };
 
-// Login
+
+// ------------ Login --------------
+
 export const userLogin = async (req, res) => {
   // our login logic goes here
 
@@ -78,8 +84,17 @@ export const userLogin = async (req, res) => {
       const token = jwt.sign({ id: emailAddress }, jwtSecretKey, {
         expiresIn: "2h",
       });
-      user.token;
       res.status(201).json({ user, token });
+      // res.cookie('token',token,{
+      //   maxAge: 300000,
+      //   secure: true,
+      //   httpOnly: true,
+      //   sameSite: "none",
+      // })
+
+      // res.json({
+      //   message:'login success'
+      // })
 
     } else {
       res.status(400).send("Invalid email or password");

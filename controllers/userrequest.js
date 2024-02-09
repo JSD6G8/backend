@@ -1,3 +1,5 @@
+//TODO validate password
+
 import Joi from "joi";
 
 export const requestUser = Joi.object({
