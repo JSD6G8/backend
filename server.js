@@ -7,6 +7,7 @@ import databaseClient from "./services/database.mjs";
 import * as activityControllers from "./controllers/activityControllers.js";
 import * as user from "./controllers/user.js"
 
+
 const PORT = process.env.SERVER_PORT || 3000;
 
 dotenv.config();
@@ -29,6 +30,8 @@ webServer.post("/activities", activityControllers.createActivity);
 webServer.put("/activities/:activityId", activityControllers.updateActivity);
 webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
 webServer.post("/signup", user.userRegister);
+webServer.post("/login", user.userLogin);
+
 
 // initialize web server
 const currentServer = webServer.listen(PORT, () => {
