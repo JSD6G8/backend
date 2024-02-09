@@ -3,7 +3,7 @@ import joi from "joi";
 export const requestSchema = joi.object({
   userId: joi.string().required(),
   title: joi.string().required(),
-  description: joi.string().required(),
+  description: joi.string().allow("").required(),
   type: joi
     .string()
     .valid("Running", "Cycling", "Swimming", "Walking", "Hiking", "Other")
