@@ -2,12 +2,13 @@ import jwt from "jsonwebtoken";
 //TODO email => uid
 
 const verifyToken = (req, res, next) => {
-    const  authHeaders = req.headers['x-access-token']
+    // const  authHeaders = req.headers['x-access-token']
+    const authHeaders = req.cookies.loglife
     let authToken = ''
 
-    if(!authHeaders) {
-        return res.status(403).send("token is required");
-    }
+    // if(!authHeaders) {
+    //     return res.status(403).send("token is required");
+    // }
 
     try {
         if (authHeaders) {

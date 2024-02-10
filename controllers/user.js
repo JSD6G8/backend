@@ -8,7 +8,7 @@ import auth from "../middleware/auth.js";
 //TODO projection
 //TODO email => uid
 
-// register
+// ----------- register -----------
 export const userRegister = async (req, res) => {
   // our register logic goes here
   try {
@@ -40,19 +40,16 @@ export const userRegister = async (req, res) => {
       password: hashedPassword,
     });
 
-    // Token
     const user_id = await databaseClient
-      .db()
-      .collection("users")
-      .findOne({ emailAddress });
-
+    .db()
+    .collection("users")
+    .findOne({ emailAddress });
+    
+    // Token
     const jwtSecretKey = process.env.TOKEN_KEY;
     const token = jwt.sign({ id: emailAddress }, jwtSecretKey, {
       expiresIn: "2h",
     });
-
-    //save token
-    user.token;
 
     res.status(201).json(user);
   } catch (error) {
@@ -84,17 +81,17 @@ export const userLogin = async (req, res) => {
       const token = jwt.sign({ id: emailAddress }, jwtSecretKey, {
         expiresIn: "2h",
       });
-      res.status(201).json({ user, token });
-      // res.cookie('token',token,{
-      //   maxAge: 300000,
-      //   secure: true,
-      //   httpOnly: true,
-      //   sameSite: "none",
-      // })
+      res.status(201).cookie('loglife',token,{
+        maxAge: 300000,
+        secure: true,
+        httpOnly: true,
+        sameSite: "none",
+      })
 
-      // res.json({
-      //   message:'login success'
-      // })
+      res.json({
+        message:'login success',
+        user:user
+      })
 
     } else {
       res.status(400).send("Invalid email or password");

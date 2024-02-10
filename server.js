@@ -7,6 +7,7 @@ import databaseClient from "./services/database.mjs";
 import * as activityControllers from "./controllers/activityControllers.js";
 import * as user from "./controllers/user.js"
 import auth from "./middleware/auth.js"
+import cookieParser from "cookie-parser"
 
 
 const PORT = process.env.SERVER_PORT || 3000;
@@ -19,6 +20,7 @@ webServer.use(cors());
 webServer.use(express.json());
 webServer.use(helmet());
 webServer.use(morgan("dev"));
+webServer.use(cookieParser());
 
 // server routes
 webServer.get("/", async (req, res) => {
