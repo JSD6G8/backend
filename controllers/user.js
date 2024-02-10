@@ -1,12 +1,24 @@
-
+import { ObjectId } from "mongodb"
 import databaseClient from "../services/database.mjs";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { requestUser, requestUserLogin } from "./userrequest.js";
-import auth from "../middleware/auth.js";
+import auth from "../middleware/auth.js"
 
-//TODO projection
-//TODO email => uid
+
+const createToken = (tokenvalue) => {
+  const jwtSecretKey = process.env.TOKEN_KEY;
+      const token = jwt.sign({ id: tokenvalue }, jwtSecretKey, {
+        expiresIn: "2h",
+      });
+      // res.status(201).cookie('loglife',token,{
+      //   maxAge: 300000,
+      //   secure: true,
+      //   httpOnly: true,
+      //   sameSite: "none",
+      // })
+      return token;
+}
 
 // ----------- register -----------
 export const userRegister = async (req, res) => {
@@ -76,21 +88,33 @@ export const userLogin = async (req, res) => {
       .collection("users")
       .findOne({ emailAddress });
 
+      const userId = await databaseClient
+      .db()
+      .collection("users")
+      .findOne(
+        { emailAddress },
+        { projection: 
+          { userId: "$_id",
+          _id:0,
+          first_name:1,
+          last_name:1,
+          emailAddress:1,
+          } 
+        }
+      );
+      console.log(userId.userId);
     if (user && (await bcrypt.compareSync(password, user.password))) {
-      const jwtSecretKey = process.env.TOKEN_KEY;
-      const token = jwt.sign({ id: emailAddress }, jwtSecretKey, {
-        expiresIn: "2h",
-      });
+      const token = createToken(userId.userId);
+
       res.status(201).cookie('loglife',token,{
         maxAge: 300000,
         secure: true,
         httpOnly: true,
         sameSite: "none",
       })
-
       res.json({
         message:'login success',
-        user:user
+        user:userId
       })
 
     } else {

@@ -16,7 +16,11 @@ dotenv.config();
 
 
 const webServer = express();
-webServer.use(cors());
+//domain access
+webServer.use(cors({
+  origin: true,
+  credentials: true,
+}));
 webServer.use(express.json());
 webServer.use(helmet());
 webServer.use(morgan("dev"));
