@@ -11,12 +11,7 @@ const createToken = (tokenvalue) => {
       const token = jwt.sign({ id: tokenvalue }, jwtSecretKey, {
         expiresIn: "2h",
       });
-      // res.status(201).cookie('loglife',token,{
-      //   maxAge: 300000,
-      //   secure: true,
-      //   httpOnly: true,
-      //   sameSite: "none",
-      // })
+
       return token;
 }
 
@@ -52,18 +47,34 @@ export const userRegister = async (req, res) => {
       password: hashedPassword,
     });
 
-    const user_id = await databaseClient
-    .db()
-    .collection("users")
-    .findOne({ emailAddress });
-    
-    // Token
-    const jwtSecretKey = process.env.TOKEN_KEY;
-    const token = jwt.sign({ id: emailAddress }, jwtSecretKey, {
-      expiresIn: "2h",
-    });
+    const userId = await databaseClient
+      .db()
+      .collection("users")
+      .findOne(
+        { emailAddress },
+        { projection: 
+          { userId: "$_id",
+          _id:0,
+          first_name:1,
+          last_name:1,
+          emailAddress:1,
+          } 
+        }
+      );
+      
+      // Token
+      const token = createToken(userId);
+      res.status(201).cookie('loglife',token,{
+        maxAge: 300000,
+        secure: true,
+        httpOnly: true,
+        sameSite: "none",
+      })
+      res.json({
+        message:'Signup success',
+        user:userId
+      })
 
-    res.status(201).json(user);
   } catch (error) {
     console.log(error);
   }
@@ -102,7 +113,7 @@ export const userLogin = async (req, res) => {
           } 
         }
       );
-      console.log(userId.userId);
+      console.log(userId);
     if (user && (await bcrypt.compareSync(password, user.password))) {
       const token = createToken(userId.userId);
 
