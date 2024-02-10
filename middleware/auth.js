@@ -12,7 +12,8 @@ const verifyToken = (req, res, next) => {
         const user = jwt.verify(authToken, process.env.TOKEN_KEY)
         console.log('user',user);
     } catch (error) {
-        return res.status(401).send("Invalid token");
+        return res.status(301).send("Unauthorized access");
+        // return res.redirect('/activities/65b8bb93581f2faab26d4120');
     }
 
     return next();
