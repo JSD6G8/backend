@@ -3,7 +3,7 @@
 import Joi from "joi";
 
 export const requestUser = Joi.object({
-    emailAddress: Joi.string().email().required(),
+    emailAddress: Joi.string().email({ allowUnicode:false }).required(),
     password: Joi.string().required(),
     first_name: Joi.string().required(),
     last_name: Joi.string().required(),
