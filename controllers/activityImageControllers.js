@@ -16,6 +16,13 @@ export const createActivityImage = async (req, res) => {
   };
 
   try {
+    const activity = await databaseClient
+      .db()
+      .collection("activities")
+      .findOne({ _id: activityId });
+    if (activity.image) {
+      await cloudinary.uploader.destroy(activity.image.publicId);
+    }
     const result = await databaseClient
       .db()
       .collection("activities")
