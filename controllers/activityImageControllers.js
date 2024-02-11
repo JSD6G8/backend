@@ -21,7 +21,7 @@ export const createActivityImage = async (req, res) => {
       .collection("activities")
       .updateOne(
         { _id: activityId },
-        { $push: { images: image } }
+        { $set: { image } }
       );
     res.status(201).send({
         result,
