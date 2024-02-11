@@ -6,6 +6,7 @@ import morgan from "morgan";
 import databaseClient from "./services/database.mjs";
 import * as activityControllers from "./controllers/activityControllers.js";
 
+const MODE = process.env.NODE_ENV || "production";
 const PORT = process.env.SERVER_PORT || 3000;
 
 dotenv.config();
@@ -28,9 +29,16 @@ webServer.put("/activities/:activityId", activityControllers.updateActivity);
 webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
 
 // initialize web server
-const currentServer = webServer.listen(PORT, () => {
-  console.log(`Database connected: ${databaseClient.db().databaseName}`)
-});
+if (MODE === 'development') {
+  const currentServer = webServer.listen(PORT, "localhost", () => {
+    console.log(`Database connected: ${databaseClient.db().databaseName}`)
+  });
+} else {
+  const currentServer = webServer.listen(PORT, () => {
+    console.log(`Database connected: ${databaseClient.db().databaseName}`)
+  });
+}
+
 
 // clean up on exit
 function cleanup () {
