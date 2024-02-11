@@ -56,6 +56,7 @@ webServer.post(
   uploadToCloudinary,
   activityImageControllers.createActivityImage
 );
+webServer.delete("/activities/:activityId/image/:publicId", activityImageControllers.deleteActivityImage);
 
 // initialize web server
 if (MODE === "development") {
