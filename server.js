@@ -51,7 +51,7 @@ webServer.put("/activities/:activityId", activityControllers.updateActivity);
 webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
 
 webServer.post(
-  "/activities/:activityId/images",
+  "/activities/:activityId/image",
   upload.single("image"),
   uploadToCloudinary,
   activityImageControllers.createActivityImage
