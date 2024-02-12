@@ -145,3 +145,119 @@ for `POST` and `PUT` endpoints
 |**201** | Entry Created | *Response body* |
 | **400** | Entries Not Found | `Invalid userId`, `Invalid activityId`, *Missing field details* |
 | **500** | Internal Error | Backend error message(s)
+
+
+## Authetication
+**Library**
+ - jsonwebtoken
+ - cookie-parser
+ - bcrypt
+
+**setup**
+
+    webServer.use(cors({
+    
+    origin: true,
+    
+    credentials: true,
+    
+    }));
+  เพื่ออนุญาตให้ domain อื่นส่ง cookie มายังเชิร์ฟเวอร์ได้
+  ### token
+  การสร้าง token 
+ 
+
+    const  jwtSecretKey  =  process.env.TOKEN_KEY;
+    
+    const  token  = jwt.sign({ id: tokenvalue }, jwtSecretKey, {
+    
+    expiresIn: "2h",
+    
+    });
+   การ save token ลงบน cookie
+  
+
+    const  token  =  createToken(userId);
+    
+    res.status(201).cookie('loglife',token,{
+    
+	    maxAge: 300000,
+    
+	    secure: true,
+    
+	    httpOnly: true,
+    
+	    sameSite: "none",
+    
+    })
+   **ค่าที่ส่งกลับไป**
+   
+
+ **1. message**
+ **2. user**
+ 
+ **ค่าใน user ประกอบด้วย**
+ - first_name
+ - last_name  
+ - emailAddress 
+ - userId
+
+ 
+
+   
+  ###  FrontEnd
+  #### Response
+
+   **response**
+
+    {
+    
+	    message:'Signup success',
+    
+	    user:userId
+    
+    }
+   **ค่าที่เก็บใน userId**
+
+     { projection:
+    
+    { userId: "$_id",
+    
+    _id:0,
+    
+    first_name:1,
+    
+    last_name:1,
+    
+    emailAddress:1,
+    
+    }
+    
+    }
+
+  ตัวอย่างการส่งค่าไปยัง backend 
+ 
+
+    const  response  =  await  axios.post("http://localhost:3000/login", {
+    
+	    emailAddress,
+    
+	    password,
+    
+    }, {
+    
+	    withCredentials: true
+    
+    });
+   ตัวอย่างการนำค่าไปใช้งาน
+ 
+
+    console.log("message: ",response.data.message);
+    
+    console.log("first_name: ",response.data.user.first_name);
+    
+    console.log("last_name: ",response.data.user.last_name);
+    
+    console.log("emailAddress: ",response.data.user.emailAddress);
+    
+    console.log("UserId: ",response.data.user.userId);
