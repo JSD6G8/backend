@@ -19,17 +19,23 @@ export const userRegister = async (req, res) => {
   try {
     const { first_name, last_name, emailAddress, password } = req.body;
     const { error } = requestUser.validate(req.body);
-    
+
     //validate
     if (error) {
-      return res.status(400).send(error.details[0].message);
+      return res.status(400).json({
+       message: error.details[0].message,
+       status:"Bad Request"
+      });
     }
     const oldUser = await databaseClient
       .db()
       .collection("users")
       .findOne({ emailAddress });
     if (oldUser) {
-      return res.status(409).send("User already exist. Please login");
+      return res.status(409).json({
+        message:"User already exist. Please login",
+        status:"Conflict"
+      });
     }
 
     //Encrypt user pass
@@ -62,16 +68,19 @@ export const userRegister = async (req, res) => {
 
     // Token
     const token = createToken(user.userId);
-    res.status(201).cookie("loglife", token, {
-      maxAge: 300000,
-      secure: true,
-      httpOnly: true,
-      sameSite: "none",
-    }).json({
-      message: "Signup success",
-      status: 'Created',
-      user: user,
-    });
+    res
+      .status(201)
+      .cookie("loglife", token, {
+        maxAge: 300000,
+        secure: true,
+        httpOnly: true,
+        sameSite: "none",
+      })
+      .json({
+        message: "Signup success",
+        status: "Created",
+        user: user,
+      });
   } catch (error) {
     console.log(error);
   }
@@ -87,7 +96,10 @@ export const userLogin = async (req, res) => {
     const { error } = requestUserLogin.validate(req.body);
 
     if (error) {
-      return res.status(400).send(error.details[0].message);
+      return res.status(400).json({
+        message:error.details[0].message,
+        status:"Bad Request"
+      });
     }
 
     const oldUser = await databaseClient
@@ -113,27 +125,49 @@ export const userLogin = async (req, res) => {
     //create token
     if (oldUser && (await bcrypt.compareSync(password, oldUser.password))) {
       const token = createToken(user.userId);
-      res.status(201).cookie("loglife", token, {
-        maxAge: 300000,
-        secure: true,
-        httpOnly: true,
-        sameSite: "none",
-      }).json({
+      res
+        .status(201)
+        .cookie("loglife", token, {
+          maxAge: 300000,
+          secure: true,
+          httpOnly: true,
+          sameSite: "none",
+        })
+        .json({
           message: "login success",
-          status: 'ok',
+          status: "ok",
           user: user,
         });
-
     } else {
-      res.status(400).send("Invalid email or password");
+      res.status(400).json({
+       message: "Invalid email or password",
+       status: "Bad Request"
+      });
     }
   } catch (error) {
     console.log(error);
   }
 };
+//-------- reset password --------
 
 export const tokenLogin = (req, res) => {
   res.status(200).send("Welcome");
 };
+
+//-------- forgot password --------
+
+// export const ForgotPassword = async (req, res) => {
+//   const { emailAddress } = req.body;
+
+//   try {
+//     const oldUser = await databaseClient
+//       .db()
+//       .collection("users")
+//       .findOne({ emailAddress });
+//     if (oldUser) {
+//       return res.status(409).send("User already exist. Please login");
+//     }
+//   } catch (error) {}
+// };
 
 export const protectedTokenLogin = [auth, tokenLogin];
