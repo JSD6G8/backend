@@ -8,6 +8,9 @@ import databaseClient from "./services/database.mjs";
 import { v2 as cloudinary } from "cloudinary";
 import * as activityControllers from "./controllers/activityControllers.js";
 import * as activityImageControllers from "./controllers/activityImageControllers.js";
+import * as user from "./controllers/user.js"
+import auth from "./middleware/auth.js"
+import cookieParser from "cookie-parser"
 
 const MODE = process.env.NODE_ENV || "production";
 const PORT = process.env.SERVER_PORT || 3000;
@@ -34,10 +37,15 @@ async function uploadToCloudinary(req, res, next) {
 }
 
 const webServer = express();
-webServer.use(cors());
+//domain access
+webServer.use(cors({
+  origin: true,
+  credentials: true,
+}));
 webServer.use(express.json());
 webServer.use(helmet());
 webServer.use(morgan("dev"));
+webServer.use(cookieParser());
 
 // server routes
 webServer.get("/", async (req, res) => {
@@ -49,6 +57,10 @@ webServer.get("/activities/:activityId", activityControllers.getActivity);
 webServer.post("/activities", activityControllers.createActivity);
 webServer.put("/activities/:activityId", activityControllers.updateActivity);
 webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
+webServer.post("/signup", user.userRegister);
+webServer.post("/login", user.userLogin);
+webServer.get("/token",auth, user.tokenLogin);
+
 
 webServer.post(
   "/activities/:activityId/image",
