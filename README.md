@@ -21,6 +21,8 @@ For Production and Dev
 
 `CLOUDINARY_API_SECRET`
 
+`TOKEN_KEY`
+
 ## API Endpoints
 
 | HTTP Verbs | Endpoints                | Action                                    |
