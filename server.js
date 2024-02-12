@@ -7,8 +7,8 @@ import morgan from "morgan";
 import databaseClient from "./services/database.mjs";
 import { v2 as cloudinary } from "cloudinary";
 import * as activityControllers from "./controllers/activityControllers.js";
+import * as user from "./controllers/userControllers.js"
 import * as activityImageControllers from "./controllers/activityImageControllers.js";
-import * as user from "./controllers/user.js"
 import auth from "./middleware/auth.js"
 import cookieParser from "cookie-parser"
 
@@ -59,7 +59,7 @@ webServer.put("/activities/:activityId", activityControllers.updateActivity);
 webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
 webServer.post("/signup", user.userRegister);
 webServer.post("/login", user.userLogin);
-webServer.get("/token",auth, user.tokenLogin);
+webServer.post("/token",auth, user.tokenLogin);
 
 
 webServer.post(
