@@ -156,18 +156,18 @@ export const tokenLogin = (req, res) => {
 
 //-------- forgot password --------
 
-export const ForgotPassword = async (req, res) => {
-  const { emailAddress } = req.body;
+// export const ForgotPassword = async (req, res) => {
+//   const { emailAddress } = req.body;
 
-  try {
-    const oldUser = await databaseClient
-      .db()
-      .collection("users")
-      .findOne({ emailAddress });
-    if (oldUser) {
-      return res.status(409).send("User already exist. Please login");
-    }
-  } catch (error) {}
-};
+//   try {
+//     const oldUser = await databaseClient
+//       .db()
+//       .collection("users")
+//       .findOne({ emailAddress });
+//     if (oldUser) {
+//       return res.status(409).send("User already exist. Please login");
+//     }
+//   } catch (error) {}
+// };
 
 export const protectedTokenLogin = [auth, tokenLogin];
