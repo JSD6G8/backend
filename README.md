@@ -142,9 +142,11 @@ for `POST` and `PUT` endpoints
 | HTML Code | Explaination | Included Message |
 |------|-------|------|
 | **200** | OK | *Response body* |
-|**201** | Entry Created | *Response body* |
-| **400** | Entries Not Found | `Invalid userId`, `Invalid activityId`, *Missing field details* |
-| **500** | Internal Error | Backend error message(s)
+|**201** | Created | *Response body* |
+| **301** | Moved Permanently | Unauthorized |
+| **400** | Bad Request | `Invalid userId`, `Invalid activityId`, *Missing field details* |
+| **409** | Conflict | User already exist. Please login |
+
 
 
 ## Authetication

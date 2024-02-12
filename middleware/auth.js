@@ -10,7 +10,10 @@ const verifyToken = (req, res, next) => {
         }
         const user = jwt.verify(authToken, process.env.TOKEN_KEY)
     } catch (error) {
-        return res.status(301).send("Unauthorized access");
+        return res.status(301).json({
+            message:"Unauthorized access",
+            status:"Moved Permanently"
+        });
     }
 
     return next();
