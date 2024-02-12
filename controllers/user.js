@@ -37,14 +37,14 @@ export const userRegister = async (req, res) => {
     const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
     //Create user
-    const user = await databaseClient.db().collection("users").insertOne({
+    const userCreate = await databaseClient.db().collection("users").insertOne({
       first_name,
       last_name,
       emailAddress,
       password: hashedPassword,
     });
 
-    const userId = await databaseClient
+    const user = await databaseClient
       .db()
       .collection("users")
       .findOne(
@@ -61,16 +61,16 @@ export const userRegister = async (req, res) => {
       );
 
     // Token
-    const token = createToken(userId.userId);
+    const token = createToken(user.userId);
     res.status(201).cookie("loglife", token, {
       maxAge: 300000,
       secure: true,
       httpOnly: true,
       sameSite: "none",
-    });
-    res.json({
+    }).json({
       message: "Signup success",
-      user: userId,
+      status: 'Created',
+      user: user,
     });
   } catch (error) {
     console.log(error);
@@ -90,12 +90,12 @@ export const userLogin = async (req, res) => {
       return res.status(400).send(error.details[0].message);
     }
 
-    const user = await databaseClient
+    const oldUser = await databaseClient
       .db()
       .collection("users")
       .findOne({ emailAddress });
 
-    const userId = await databaseClient
+    const user = await databaseClient
       .db()
       .collection("users")
       .findOne(
@@ -111,18 +111,19 @@ export const userLogin = async (req, res) => {
         }
       );
     //create token
-    if (user && (await bcrypt.compareSync(password, user.password))) {
-      const token = createToken(userId.userId);
+    if (oldUser && (await bcrypt.compareSync(password, oldUser.password))) {
+      const token = createToken(user.userId);
       res.status(201).cookie("loglife", token, {
         maxAge: 300000,
         secure: true,
         httpOnly: true,
         sameSite: "none",
-      });
-      res.json({
-        message: "login success",
-        user: userId,
-      });
+      }).json({
+          message: "login success",
+          status: 'ok',
+          user: user,
+        });
+
     } else {
       res.status(400).send("Invalid email or password");
     }
