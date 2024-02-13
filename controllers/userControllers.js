@@ -1,8 +1,50 @@
 import databaseClient from "../services/database.mjs";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { requestUser, requestUserLogin } from "./userrequest.js";
+import {
+  requestUser,
+  requestUserLogin,
+  requestUserRepassword,
+} from "./userrequest.js";
 import auth from "../middleware/auth.js";
+import nodemailer from "nodemailer";
+// import { sendEmail } from "./email.js";
+
+//funtion
+function generateOTP() {
+  const digits = "0123456789";
+  let OTP = "";
+  for (let i = 0; i < 4; i++) {
+    OTP += digits[Math.floor(Math.random() * 10)];
+  }
+  return OTP;
+}
+
+const sendEmail = async (emailAddress,otp) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "hotmail",
+      auth: {
+        user: process.env.USER_EMAIL,
+        pass: process.env.USER_PASSWORD,
+      },
+    });
+
+    let mailOptions = {
+      from: process.env.USER_EMAIL,
+      to: emailAddress,
+      subject: "OTP for verification on LOGLIFE",
+      html: `<p>แจ้งรหัสเพื่อยืยยันการเปลี่ยนรหัสผ่าน</p><br/>
+             <p>    OTP: ${otp}</p>`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent: " + info.response);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({message:"can't send email",status:"error"});
+  }
+};
 
 const createToken = (tokenvalue) => {
   const jwtSecretKey = process.env.TOKEN_KEY;
@@ -157,6 +199,37 @@ export const userLogin = async (req, res) => {
 export const tokenLogin = (req, res) => {
   res.status(200).send({ user: req.user });
 };
+//TODO:-------- reset password --------
+
+export const resetPassword = async (req, res) => {
+  const {emailAddress, newPassword} = req.body
+  const { error } = requestUserRepassword.validate(req.body);
+
+  //validate
+  if (error) {
+    return res.status(400).json({
+      message: error.details[0].message,
+      status: "Bad Request",
+    });
+  }
+  const oldUser = await databaseClient
+    .db()
+    .collection("users")
+    .findOne({ emailAddress });
+  if (!oldUser) {
+    return res.status(400).json({
+      message: "not found user",
+      status: "Bad Request",
+    });
+  } 
+  const saltRounds = 12;
+  const hashedPassword = bcrypt.hashSync(newPassword, saltRounds);
+  const result = await databaseClient
+      .db()
+      .collection("users")
+      .updateOne({ emailAddress: emailAddress }, { $set: {password: hashedPassword }});
+  res.status(200).json({message:"Updata password success",status:"Ok"});
+};
 
 //-------- logout --------
 export const userLogout = (req, res) => {
@@ -174,18 +247,45 @@ export const userLogout = (req, res) => {
 
 //-------- forgot password --------
 
-// export const ForgotPassword = async (req, res) => {
-//   const { emailAddress } = req.body;
+let otp;
+export const ForgotPassword = async (req, res) => {
+  const { emailAddress, user_otp } = req.body;
+  const { error } = requestUserRepassword.validate(req.body);
 
-//   try {
-//     const oldUser = await databaseClient
-//       .db()
-//       .collection("users")
-//       .findOne({ emailAddress });
-//     if (oldUser) {
-//       return res.status(409).send("User already exist. Please login");
-//     }
-//   } catch (error) {}
-// };
+  if (error) {
+    return res.status(400).json({
+      message: error.details[0].message,
+      status: "Bad Request",
+    });
+  }
 
-export const protectedTokenLogin = [auth, tokenLogin];
+  try {
+    const oldUser = await databaseClient
+      .db()
+      .collection("users")
+      .findOne({ emailAddress });
+
+    if (!oldUser) {
+      return res.status(409).json({ message: "Invalid email", status: "Bad Request" });
+    }
+
+    if (!user_otp) {
+      otp = generateOTP();
+      console.log(otp);
+      // await sendEmail(emailAddress, otp); // ส่ง OTP ไปยังอีเมล์ของผู้ใช้
+      return res.status(200).json({ message: "OTP Created", status: "Ok" });
+    }
+
+    console.log("otp is", otp);
+    const otpCheck = user_otp === otp;
+    if (otpCheck) {
+      return res.status(200).json({ message: "OTP is correct", status: "Ok" });
+    } else {
+      return res.status(400).json({ message: "Invalid OTP", status: "Bad Request" });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error", status: "Internal Server Error" });
+  }
+};
+
+// export const protectedTokenLogin = [auth, tokenLogin];

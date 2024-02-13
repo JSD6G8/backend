@@ -23,6 +23,10 @@ For Production and Dev
 
 `TOKEN_KEY`
 
+`USER_EMAIL`
+
+`USER_PASSWORD`
+
 ## API Endpoints
 
 | HTTP Verbs | Endpoints                | Action                                    |
