@@ -6,6 +6,23 @@ APIs for accessing database of LogLife web application.
 
 Access via <https://jsd6-loglife-backend.onrender.com>
 
+## Environment Variables
+For Production and Dev
+
+`DATABASE_URI`
+
+`SERVER_PORT`
+
+`NODE_ENV=development` for dev OR `NODE_ENV=production` for production
+
+`CLOUDINARY_CLOUD_NAME`
+
+`CLOUDINARY_API_KEY`
+
+`CLOUDINARY_API_SECRET`
+
+`TOKEN_KEY`
+
 ## API Endpoints
 
 | HTTP Verbs | Endpoints                | Action                                    |

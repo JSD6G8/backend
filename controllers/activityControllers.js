@@ -102,7 +102,8 @@ export const getActivity = async (req, res) => {
             endTime: 1, 
             date: 1, 
             duration: 1, 
-            barometer: 1 
+            barometer: 1 ,
+            image: 1
           } 
         }
       );
