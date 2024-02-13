@@ -192,8 +192,34 @@ export const userLogin = async (req, res) => {
 };
 //TODO:-------- reset password --------
 
-export const resetPassword = (req, res) => {
-  res.status(200).send("Welcome");
+export const resetPassword = async (req, res) => {
+  const {emailAddress, newPassword} = req.body
+  const { error } = requestUserRepassword.validate(req.body);
+
+  //validate
+  if (error) {
+    return res.status(400).json({
+      message: error.details[0].message,
+      status: "Bad Request",
+    });
+  }
+  const oldUser = await databaseClient
+    .db()
+    .collection("users")
+    .findOne({ emailAddress });
+  if (!oldUser) {
+    return res.status(400).json({
+      message: "not found user",
+      status: "Bad Request",
+    });
+  } 
+  const saltRounds = 12;
+  const hashedPassword = bcrypt.hashSync(newPassword, saltRounds);
+  const result = await databaseClient
+      .db()
+      .collection("users")
+      .updateOne({ emailAddress: emailAddress }, { $set: {password: hashedPassword }});
+  res.status(200).json({message:"Updata password success",status:"Ok"});
 };
 
 //TODO: -------- forgot password --------
