@@ -54,7 +54,7 @@ webServer.get("/", async (req, res) => {
   res.send("Welcome to LogLife API");
 });
 
-webServer.get("/activities/user/:userId", auth, activityControllers.listActivities);
+webServer.get("/activities/user/:userId", activityControllers.listActivities);
 webServer.get("/activities/:activityId", activityControllers.getActivity);
 webServer.post("/activities", activityControllers.createActivity);
 webServer.put("/activities/:activityId", activityControllers.updateActivity);
