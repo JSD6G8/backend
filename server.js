@@ -60,6 +60,8 @@ webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
 webServer.post("/signup", user.userRegister);
 webServer.post("/login", user.userLogin);
 webServer.post("/token",auth, user.tokenLogin);
+webServer.post("/forgotpassword", user.ForgotPassword);
+
 
 
 webServer.post(

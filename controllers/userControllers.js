@@ -3,6 +3,36 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { requestUser, requestUserLogin } from "./userrequest.js";
 import auth from "../middleware/auth.js";
+// import nodemailer from "nodemailer/lib/mime-node/index.js";
+import nodemailer from "nodemailer"
+
+//funtion
+const sendEmail = () => {
+  const transporter = nodemailer.createTransport({
+    service: "hotmail",
+    auth:{
+      user: process.env.USER_EMAIL,
+      pass: process.env.USER_PASSWORD
+    }
+  });
+
+  let mailOptions = {
+    from: process.env.USER_EMAIL,
+    to : "totsapol1123@gmail.com",
+    subject: 'test send email from loglife',
+    html:`<p>Hello world testing</p>`
+  }
+
+  transporter.sendMail(mailOptions,function(err,info){
+    if (err) {
+      console.log(err);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  })
+
+ 
+};
 
 const createToken = (tokenvalue) => {
   const jwtSecretKey = process.env.TOKEN_KEY;
@@ -12,6 +42,8 @@ const createToken = (tokenvalue) => {
 
   return token;
 };
+
+
 
 // ----------- register -----------
 
@@ -148,26 +180,30 @@ export const userLogin = async (req, res) => {
     console.log(error);
   }
 };
-//-------- reset password --------
+//TODO:-------- reset password --------
 
 export const tokenLogin = (req, res) => {
   res.status(200).send("Welcome");
 };
 
-//-------- forgot password --------
+//TODO: -------- forgot password --------
 
-// export const ForgotPassword = async (req, res) => {
-//   const { emailAddress } = req.body;
+export const ForgotPassword = async (req, res) => {
+  const { emailAddress } = req.body;
 
-//   try {
-//     const oldUser = await databaseClient
-//       .db()
-//       .collection("users")
-//       .findOne({ emailAddress });
-//     if (oldUser) {
-//       return res.status(409).send("User already exist. Please login");
-//     }
-//   } catch (error) {}
-// };
+  try {
+    const oldUser = await databaseClient
+      .db()
+      .collection("users")
+      .findOne({ emailAddress });
+    if (oldUser) {
+      //funtion
+      sendEmail();
+      res.status(200).send("complete");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export const protectedTokenLogin = [auth, tokenLogin];
