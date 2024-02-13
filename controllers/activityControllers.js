@@ -21,11 +21,7 @@ import { requestSchema } from "./requestSchema.js";
 export const listActivities = async (req, res) => {
   if (req.params.userId == undefined) {
     req.params.userId = req.user.userId;
-    console.log("I was here");
   }
-
-  console.log("param: ", req.params.userId);
-  console.log("user: ", req.user.userId);
 
   // validate if userId is a valid ObjectId
   if (!ObjectId.isValid(req.params.userId)) {
