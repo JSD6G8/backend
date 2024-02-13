@@ -6,7 +6,7 @@ import auth from "../middleware/auth.js";
 
 const createToken = (tokenvalue) => {
   const jwtSecretKey = process.env.TOKEN_KEY;
-  const token = jwt.sign({ id: tokenvalue }, jwtSecretKey, {
+  const token = jwt.sign(tokenvalue, jwtSecretKey, {
     expiresIn: "2h",
   });
 
@@ -23,8 +23,8 @@ export const userRegister = async (req, res) => {
     //validate
     if (error) {
       return res.status(400).json({
-       message: error.details[0].message,
-       status:"Bad Request"
+        message: error.details[0].message,
+        status: "Bad Request",
       });
     }
     const oldUser = await databaseClient
@@ -33,8 +33,8 @@ export const userRegister = async (req, res) => {
       .findOne({ emailAddress });
     if (oldUser) {
       return res.status(409).json({
-        message:"User already exist. Please login",
-        status:"Conflict"
+        message: "User already exist. Please login",
+        status: "Conflict",
       });
     }
 
@@ -67,7 +67,10 @@ export const userRegister = async (req, res) => {
       );
 
     // Token
-    const token = createToken(user.userId);
+    const token = createToken({
+      userId: user.userId,
+      first_name: user.first_name,
+    });
     res
       .status(201)
       .cookie("loglife", token, {
@@ -97,8 +100,8 @@ export const userLogin = async (req, res) => {
 
     if (error) {
       return res.status(400).json({
-        message:error.details[0].message,
-        status:"Bad Request"
+        message: error.details[0].message,
+        status: "Bad Request",
       });
     }
 
@@ -123,36 +126,51 @@ export const userLogin = async (req, res) => {
         }
       );
     //create token
-    if (oldUser && (await bcrypt.compareSync(password, oldUser.password))) {
-      const token = createToken(user.userId);
-      res
-        .status(201)
-        .cookie("loglife", token, {
-          maxAge: 300000,
-          secure: true,
-          httpOnly: true,
-          sameSite: "none",
-        })
-        .json({
-          message: "login success",
-          status: "ok",
-          user: user,
-        });
+    if (oldUser && bcrypt.compareSync(password, oldUser.password)) {
+      const token = createToken({
+        userId: user.userId,
+        first_name: user.first_name,
+      });
+      res.status(200).cookie("loglife", token, {
+        maxAge: 300000,
+        secure: true,
+        httpOnly: true,
+        sameSite: "none",
+      });
+
+      res.json({
+        message: "login success",
+        status: "ok",
+        user: user,
+      });
     } else {
       res.status(400).json({
-       message: "Invalid email or password",
-       status: "Bad Request"
+        message: "Invalid email or password",
+        status: "Bad Request",
       });
     }
   } catch (error) {
     console.log(error);
   }
 };
-//-------- reset password --------
 
 export const tokenLogin = (req, res) => {
-  res.status(200).send("Welcome");
+  res.status(200).send({ user: req.user });
 };
+
+//-------- logout --------
+export const userLogout = (req, res) => {
+  res
+    .status(200)
+    .clearCookie("loglife", {
+        secure: true,
+        httpOnly: true,
+        sameSite: "none",
+    })
+    .json({ message: "Logout success", status: "ok" });
+};
+
+//-------- reset password --------
 
 //-------- forgot password --------
 
