@@ -1,37 +1,49 @@
 import databaseClient from "../services/database.mjs";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { requestUser, requestUserLogin } from "./userrequest.js";
+import {
+  requestUser,
+  requestUserLogin,
+  requestUserRepassword,
+} from "./userrequest.js";
 import auth from "../middleware/auth.js";
-// import nodemailer from "nodemailer/lib/mime-node/index.js";
-import nodemailer from "nodemailer"
+import nodemailer from "nodemailer";
+// import { sendEmail } from "./email.js";
 
 //funtion
-const sendEmail = () => {
-  const transporter = nodemailer.createTransport({
-    service: "hotmail",
-    auth:{
-      user: process.env.USER_EMAIL,
-      pass: process.env.USER_PASSWORD
-    }
-  });
-
-  let mailOptions = {
-    from: process.env.USER_EMAIL,
-    to : "totsapol1123@gmail.com",
-    subject: 'test send email from loglife',
-    html:`<p>Hello world testing</p>`
+function generateOTP() {
+  const digits = "0123456789";
+  let OTP = "";
+  for (let i = 0; i < 4; i++) {
+    OTP += digits[Math.floor(Math.random() * 10)];
   }
+  return OTP;
+}
 
-  transporter.sendMail(mailOptions,function(err,info){
-    if (err) {
-      console.log(err);
-    } else {
-      console.log('Email sent: ' + info.response);
-    }
-  })
+const sendEmail = async (emailAddress,otp) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "hotmail",
+      auth: {
+        user: process.env.USER_EMAIL,
+        pass: process.env.USER_PASSWORD,
+      },
+    });
 
- 
+    let mailOptions = {
+      from: process.env.USER_EMAIL,
+      to: emailAddress,
+      subject: "OTP for verification on LOGLIFE",
+      html: `<p>แจ้งรหัสเพื่อยืยยันการเปลี่ยนรหัสผ่าน</p><br/>
+             <p>    OTP: ${otp}</p>`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent: " + info.response);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({message:"can't send email",status:"error"});
+  }
 };
 
 const createToken = (tokenvalue) => {
@@ -43,8 +55,6 @@ const createToken = (tokenvalue) => {
   return token;
 };
 
-
-
 // ----------- register -----------
 
 export const userRegister = async (req, res) => {
@@ -55,8 +65,8 @@ export const userRegister = async (req, res) => {
     //validate
     if (error) {
       return res.status(400).json({
-       message: error.details[0].message,
-       status:"Bad Request"
+        message: error.details[0].message,
+        status: "Bad Request",
       });
     }
     const oldUser = await databaseClient
@@ -65,8 +75,8 @@ export const userRegister = async (req, res) => {
       .findOne({ emailAddress });
     if (oldUser) {
       return res.status(409).json({
-        message:"User already exist. Please login",
-        status:"Conflict"
+        message: "User already exist. Please login",
+        status: "Conflict",
       });
     }
 
@@ -129,8 +139,8 @@ export const userLogin = async (req, res) => {
 
     if (error) {
       return res.status(400).json({
-        message:error.details[0].message,
-        status:"Bad Request"
+        message: error.details[0].message,
+        status: "Bad Request",
       });
     }
 
@@ -172,8 +182,8 @@ export const userLogin = async (req, res) => {
         });
     } else {
       res.status(400).json({
-       message: "Invalid email or password",
-       status: "Bad Request"
+        message: "Invalid email or password",
+        status: "Bad Request",
       });
     }
   } catch (error) {
@@ -182,28 +192,51 @@ export const userLogin = async (req, res) => {
 };
 //TODO:-------- reset password --------
 
-export const tokenLogin = (req, res) => {
+export const resetPassword = (req, res) => {
   res.status(200).send("Welcome");
 };
 
 //TODO: -------- forgot password --------
 
+let otp;
 export const ForgotPassword = async (req, res) => {
-  const { emailAddress } = req.body;
+  const { emailAddress, user_otp } = req.body;
+  const { error } = requestUserRepassword.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({
+      message: error.details[0].message,
+      status: "Bad Request",
+    });
+  }
 
   try {
     const oldUser = await databaseClient
       .db()
       .collection("users")
       .findOne({ emailAddress });
-    if (oldUser) {
-      //funtion
-      sendEmail();
-      res.status(200).send("complete");
+
+    if (!oldUser) {
+      return res.status(409).json({ message: "Invalid email", status: "Bad Request" });
+    }
+
+    if (!user_otp) {
+      otp = generateOTP();
+      console.log(otp);
+      // await sendEmail(emailAddress, otp); // ส่ง OTP ไปยังอีเมล์ของผู้ใช้
+      return res.status(200).json({ message: "OTP Created", status: "Ok" });
+    }
+
+    console.log("otp is", otp);
+    const otpCheck = user_otp === otp;
+    if (otpCheck) {
+      return res.status(200).json({ message: "OTP is correct", status: "Ok" });
+    } else {
+      return res.status(400).json({ message: "Invalid OTP", status: "Bad Request" });
     }
   } catch (error) {
-    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error", status: "Internal Server Error" });
   }
 };
 
-export const protectedTokenLogin = [auth, tokenLogin];
+// export const protectedTokenLogin = [auth, tokenLogin];
