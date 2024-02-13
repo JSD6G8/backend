@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
 const verifyToken = (req, res, next) => {
-    const authHeaders = req.cookies.loglife
+    const authToken = req.cookies.loglife
     // let authToken = ''
     try {
         // if (authHeaders) {
