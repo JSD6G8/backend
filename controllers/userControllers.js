@@ -9,7 +9,7 @@ import {
 import auth from "../middleware/auth.js";
 import nodemailer from "nodemailer";
 // import { sendEmail } from "./email.js";
-
+//เวลา deploy ลบบรรทัดที่(หรือ comment บรรทัดที่ log ค่า otp ออกมา) [ 265-266 , 295-296 ] **เปิดคอมเม้นที่ 278 (สำหรับส่ง email) Thank you!!
 //funtion
 
 function generateRef(length) {
@@ -264,9 +264,6 @@ export const ForgotPassword = async (req, res) => {
       ref = generateRef(6);
       console.log("ref: ",ref);
       console.log("otp: ",otp);
-      // const refToken = createToken(ref); 
-      // const otpToken = createToken(otp); 
-      const hashedRef =  bcrypt.hashSync(ref, 10);
       const hashedOtp = bcrypt.hashSync(otp, 10);
 
       const otpCreate = await databaseClient
@@ -275,40 +272,31 @@ export const ForgotPassword = async (req, res) => {
             .insertOne({
               emailAddress:emailAddress,
               userOtp:hashedOtp,
-              userRef:hashedRef,
+              userRef:ref,
               "createdAt": new Date()
             });
       // await sendEmail(emailAddress, otp); // ส่ง OTP ไปยังอีเมล์ของผู้ใช้
-      return res.status(200).cookie("_llf", hashedRef, {
+      return res.status(200).cookie("_llf", ref, {
         maxAge: 300000,
         secure: true,
         httpOnly: true,
         sameSite: "none",
-      }).json({ message: "REF Created", status: "Ok" });
+      }).json({ message: "REF and OTP Created", status: "Ok" });
     }
 
-    const otpDb = await databaseClient
-          .db()
-          .collection("verifications")
-          .findOne({userRef:userRef},{projection:{_id:0,userOtp:1}})
-    const refDb = await databaseClient
-          .db()
-          .collection("verifications")
-          .findOne({userRef:userRef},{projection:{_id:0,userRef:1}})
-    const test = await databaseClient
+    const verificationData = await databaseClient
           .db()
           .collection("verifications")
           .findOne({userRef:userRef})
 
           
-    console.log("user_otp is ",typeof user_otp,"otpDb is ",typeof otpDb,"userReg is ",typeof userRef,"refDb",typeof refDb,"test is ",typeof test.userOtp);
-    const compareOtp = await bcrypt.compareSync(user_otp,test.userOtp);
-    const compareRef = await bcrypt.compareSync(userRef,test.userRef);
+    const compareOtp = await bcrypt.compareSync(user_otp,verificationData.userOtp);
+    const checkRef = verificationData.userRef === userRef;
     console.log("compareOtp is ",compareOtp);
-    console.log("compareRef is ",compareRef);
+    console.log("compareRef is ",checkRef);
 
 
-    if (compareOtp) {
+    if (compareOtp && checkRef) {
       return res.status(200).json({ message: "OTP is correct", status: "Ok" });
     } else {
       return res.status(400).json({ message: "Invalid OTP", status: "Bad Request" });
@@ -318,4 +306,3 @@ export const ForgotPassword = async (req, res) => {
   }
 };
 
-// export const protectedTokenLogin = [auth, tokenLogin];
