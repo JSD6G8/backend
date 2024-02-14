@@ -6,15 +6,16 @@ Project Description
 
 ### Todo
 
+- [ ] update api spec  
+- [ ] เขียน readme  
 - [ ] update status  
-- [ ] แยก send mail  
-- [ ] repassword page  
 
 ### In Progress
 
+- [ ] หาที่เก็บ OTP  
+- [ ] แยก send mail  
 
 ### Done ✓
 
-- [x] forgot password page  
-- [x] otp  
+- [x] repassword page  
 

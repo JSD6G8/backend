@@ -11,6 +11,16 @@ import nodemailer from "nodemailer";
 // import { sendEmail } from "./email.js";
 
 //funtion
+
+function generateRef(length) {
+  let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let ref = '';
+  for (let i = 0; i < length; i++) {
+      ref += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return ref;
+}
+
 function generateOTP() {
   const digits = "0123456789";
   let OTP = "";
@@ -224,7 +234,8 @@ export const resetPassword = async (req, res) => {
 
 //TODO: -------- forgot password --------
 
-let otp;
+let otp;//TODO:หาที่เก็บ
+let ref;
 export const ForgotPassword = async (req, res) => {
   const { emailAddress, user_otp } = req.body;
   const { error } = requestUserRepassword.validate(req.body);
@@ -243,14 +254,28 @@ export const ForgotPassword = async (req, res) => {
       .findOne({ emailAddress });
 
     if (!oldUser) {
-      return res.status(409).json({ message: "Invalid email", status: "Bad Request" });
+      return res.status(400).json({ message: "Invalid email", status: "Bad Request" });
     }
 
     if (!user_otp) {
       otp = generateOTP();
-      console.log(otp);
+      ref = generateRef(6);
+      console.log("ref: ",ref);
+      console.log("otp: ",otp);
+      const refToken = createToken(ref); 
+      const otpToken = createToken(otp); 
+      const otpCreate = await databaseClient.db().collection("verifications").insertOne({
+        emailAddress:emailAddress,
+        userOtp:otpToken,
+        userRef:refToken
+      });
       // await sendEmail(emailAddress, otp); // ส่ง OTP ไปยังอีเมล์ของผู้ใช้
-      return res.status(200).json({ message: "OTP Created", status: "Ok" });
+      return res.status(200).cookie("_llf", refToken, {
+        maxAge: 300000,
+        secure: true,
+        httpOnly: true,
+        sameSite: "none",
+      }).json({ message: "OTP Created", status: "Ok" });
     }
 
     console.log("otp is", otp);
