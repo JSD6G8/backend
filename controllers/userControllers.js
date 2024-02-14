@@ -1,5 +1,5 @@
 import databaseClient from "../services/database.mjs";
-import bcrypt from "bcrypt";
+import bcrypt, { compareSync } from "bcrypt";
 import jwt from "jsonwebtoken";
 import {
   requestUser,
@@ -234,59 +234,87 @@ export const resetPassword = async (req, res) => {
 
 //TODO: -------- forgot password --------
 
-let otp;//TODO:หาที่เก็บ
-let ref;
 export const ForgotPassword = async (req, res) => {
+  let otp;
+  let ref;
   const { emailAddress, user_otp } = req.body;
+  const userRef = req.cookies._llf
   const { error } = requestUserRepassword.validate(req.body);
-
+  
   if (error) {
     return res.status(400).json({
       message: error.details[0].message,
       status: "Bad Request",
     });
   }
-
+  
   try {
     const oldUser = await databaseClient
-      .db()
-      .collection("users")
-      .findOne({ emailAddress });
-
+    .db()
+    .collection("users")
+    .findOne({ emailAddress });
+    
     if (!oldUser) {
       return res.status(400).json({ message: "Invalid email", status: "Bad Request" });
     }
-
+    
     if (!user_otp) {
+  
       otp = generateOTP();
       ref = generateRef(6);
       console.log("ref: ",ref);
       console.log("otp: ",otp);
-      const refToken = createToken(ref); 
-      const otpToken = createToken(otp); 
-      const otpCreate = await databaseClient.db().collection("verifications").insertOne({
-        emailAddress:emailAddress,
-        userOtp:otpToken,
-        userRef:refToken
-      });
+      // const refToken = createToken(ref); 
+      // const otpToken = createToken(otp); 
+      const hashedRef =  bcrypt.hashSync(ref, 10);
+      const hashedOtp = bcrypt.hashSync(otp, 10);
+
+      const otpCreate = await databaseClient
+            .db()
+            .collection("verifications")
+            .insertOne({
+              emailAddress:emailAddress,
+              userOtp:hashedOtp,
+              userRef:hashedRef,
+              "createdAt": new Date()
+            });
       // await sendEmail(emailAddress, otp); // ส่ง OTP ไปยังอีเมล์ของผู้ใช้
-      return res.status(200).cookie("_llf", refToken, {
+      return res.status(200).cookie("_llf", hashedRef, {
         maxAge: 300000,
         secure: true,
         httpOnly: true,
         sameSite: "none",
-      }).json({ message: "OTP Created", status: "Ok" });
+      }).json({ message: "REF Created", status: "Ok" });
     }
 
-    console.log("otp is", otp);
-    const otpCheck = user_otp === otp;
-    if (otpCheck) {
+    const otpDb = await databaseClient
+          .db()
+          .collection("verifications")
+          .findOne({userRef:userRef},{projection:{_id:0,userOtp:1}})
+    const refDb = await databaseClient
+          .db()
+          .collection("verifications")
+          .findOne({userRef:userRef},{projection:{_id:0,userRef:1}})
+    const test = await databaseClient
+          .db()
+          .collection("verifications")
+          .findOne({userRef:userRef})
+
+          
+    console.log("user_otp is ",typeof user_otp,"otpDb is ",typeof otpDb,"userReg is ",typeof userRef,"refDb",typeof refDb,"test is ",typeof test.userOtp);
+    const compareOtp = await bcrypt.compareSync(user_otp,test.userOtp);
+    const compareRef = await bcrypt.compareSync(userRef,test.userRef);
+    console.log("compareOtp is ",compareOtp);
+    console.log("compareRef is ",compareRef);
+
+
+    if (compareOtp) {
       return res.status(200).json({ message: "OTP is correct", status: "Ok" });
     } else {
       return res.status(400).json({ message: "Invalid OTP", status: "Bad Request" });
     }
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error", status: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Error", status: "Internal Server Error" ,error:error});
   }
 };
 
