@@ -116,7 +116,7 @@ export const userRegister = async (req, res) => {
     res
       .status(201)
       .cookie("loglife", token, {
-        maxAge: 300000,
+        maxAge: 7200000,
         secure: true,
         httpOnly: true,
         sameSite: "none",
@@ -174,7 +174,7 @@ export const userLogin = async (req, res) => {
         first_name: user.first_name,
       });
       res.status(200).cookie("loglife", token, {
-        maxAge: 300000,
+        maxAge: 7200000,
         secure: true,
         httpOnly: true,
         sameSite: "none",
