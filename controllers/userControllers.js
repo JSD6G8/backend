@@ -200,6 +200,10 @@ export const userLogin = async (req, res) => {
     console.log(error);
   }
 };
+
+export const tokenLogin = (req, res) => {
+  res.status(200).send("Welcome");
+};
 //TODO:-------- reset password --------
 
 export const resetPassword = async (req, res) => {
