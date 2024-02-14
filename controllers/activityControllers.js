@@ -19,9 +19,9 @@ import { requestSchema } from "./requestSchema.js";
     take: number: limit to [number] of docs,
 */
 export const listActivities = async (req, res) => {
-  if (req.params.userId == undefined) {
-    req.params.userId = req.user.userId;
-  }
+  // if (req.params.userId == undefined) {
+  //   req.params.userId = req.user.userId;
+  // }
 
   // validate if userId is a valid ObjectId
   if (!ObjectId.isValid(req.params.userId)) {
