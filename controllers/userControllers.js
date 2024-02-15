@@ -6,10 +6,10 @@ import {
   requestUserLogin,
   requestUserRepassword,
 } from "./userrequest.js";
-import auth from "../middleware/auth.js";
 import nodemailer from "nodemailer";
 // import { sendEmail } from "./email.js";
 //เวลา deploy ลบบรรทัดที่(หรือ comment บรรทัดที่ log ค่า otp ออกมา) [ 285-286 , 315-316 ] **เปิดคอมเม้นที่ 298 (สำหรับส่ง email) Thank you!!
+
 //funtion
 
 function generateRef(length) {
@@ -178,7 +178,7 @@ export const userLogin = async (req, res) => {
     if (oldUser && (await bcrypt.compareSync(password, oldUser.password))) {
       const token = createToken(user.userId);
       res
-        .status(201)
+        .status(200)
         .cookie("loglife", token, {
           maxAge: 300000,
           secure: true,
@@ -297,7 +297,7 @@ export const ForgotPassword = async (req, res) => {
             });
       // await sendEmail(emailAddress, otp); // ส่ง OTP ไปยังอีเมล์ของผู้ใช้
       return res.status(200).cookie("_llf", ref, {
-        maxAge: 300000,
+        maxAge: 1800000 ,
         secure: true,
         httpOnly: true,
         sameSite: "none",
