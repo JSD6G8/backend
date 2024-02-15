@@ -133,6 +133,7 @@ export const createActivity = async (req, res) => {
     res.status(201).send({
       result,
     });
+    updateMonthlySummary( activity.date , req.user.userId );
   } catch {
     res.status(500).send(error.message);
   }
@@ -164,6 +165,7 @@ export const updateActivity = async (req, res) => {
     res.send({
       result,
     });
+    updateMonthlySummary( activity.date , req.user.userId );
   } catch (error) {
     res.status(500).send(error.message);
   }
