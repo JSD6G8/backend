@@ -1,6 +1,7 @@
 import databaseClient from "../services/database.mjs";
 import { ObjectId } from "mongodb";
 import { requestSchemaV2 } from "./activityRequestSchema.js";
+import { updateMonthlySummary } from "./dashboardController.js";
 
 /* 
   listActivities query parameters:
