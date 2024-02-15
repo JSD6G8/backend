@@ -35,13 +35,13 @@ const sendEmail = async (emailAddress,otp) => {
     const transporter = nodemailer.createTransport({
       service: "hotmail",
       auth: {
-        user: process.env.USER_EMAIL,
-        pass: process.env.USER_PASSWORD,
+        user: process.env.USER_EMAIL || process.env.USER_EMAIL_SECON,
+        pass: process.env.USER_PASSWORD || process.env.USER_PASSWORD_SECON,
       },
     });
 
     let mailOptions = {
-      from: process.env.USER_EMAIL,
+      from: process.env.USER_EMAIL || process.env.USER_EMAIL_SECON,
       to: emailAddress,
       subject: "OTP for verification on LOGLIFE",
       html: `<p>แจ้งรหัสเพื่อยืยยันการเปลี่ยนรหัสผ่าน</p><br/>
