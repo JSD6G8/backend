@@ -11,6 +11,9 @@ import * as user from "./controllers/userControllers.js";
 import * as activityImageControllers from "./controllers/activityImageControllers.js";
 import auth from "./middleware/auth.js";
 import cookieParser from "cookie-parser";
+import * as dashboardControllers from "./controllers/dashboardController.js";
+
+
 
 const MODE = process.env.NODE_ENV || "production";
 const PORT = process.env.SERVER_PORT || 3000;
@@ -69,6 +72,9 @@ webServer.delete(
   "/activities/:activityId/image/:publicId",
   activityImageControllers.deleteActivityImage
 );
+
+webServer.get("/dashboard", auth, dashboardControllers.getDashboard);
+
 
 webServer.post("/signup", user.userRegister);
 webServer.post("/login", user.userLogin);
