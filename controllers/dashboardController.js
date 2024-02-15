@@ -11,12 +11,12 @@ function calMonthlySummary( yearmonth , dataSetInArray ) {
   let active_date_list = []
   let sum_time = 0
   let sum_minutes = 0
+  // Prepare output object -> arrangement mongo document here
   output["userId"] = ""
   output["month"] = yearmonth
   output["active_day"] = ""
   output["sum_time"] = 0
   output["sum_minutes"] = 0
-  // console.log(targetMonth)
   // Iterate through the data set
   dataSetInArray.map( data => {
       let date = new Date(data["date"],) // '2024-02-04' ISO 8601 format (YYYY-MM-DD)        
@@ -41,11 +41,11 @@ function calMonthlySummary( yearmonth , dataSetInArray ) {
       }
   }
   )
-  // console.log(active_date_list)
+  // assign data to arranged output
   output["active_day"] = active_date_list
   output["sum_time"] = sum_time
   output["sum_minutes"] = sum_minutes
-  return output
+  return output // return in object format
 }
 
 export async function updateMonthlySummary( dateString , userId) {
@@ -65,8 +65,8 @@ const summaryData = await databaseClient
         )
   .toArray();    
 // send all exercise in Calculate function for calculate summary
-let output = calMonthlySummary(monthString,summaryData)
-output["userId"] = new ObjectId(userId)
+let calculatedMonthlySummary = calMonthlySummary(monthString,summaryData)
+calculatedMonthlySummary["userId"] = new ObjectId(userId)
 // check is there that month in the data set -> Update
 const sumDataInDB = await databaseClient
 .db()
@@ -76,14 +76,13 @@ const sumDataInDB = await databaseClient
         }
       )   
 // if not, create new object for that month -> Create
-console.log(output)
 if( sumDataInDB ){
   try {
     console.log("Update activities_sum database")
     const result = await databaseClient
       .db()
       .collection("activities_sum")
-      .replaceOne({ _id: sumDataInDB._id }, output);
+      .replaceOne({ _id: sumDataInDB._id }, calculatedMonthlySummary);
   } catch (error) {
     console.log(error.message)
   }
@@ -95,7 +94,7 @@ else {
     const result = await databaseClient
       .db()
       .collection("activities_sum")
-      .insertOne( output );
+      .insertOne( calculatedMonthlySummary );
     // console.log(result)
   } catch (error) {
     console.log(error.message)
@@ -159,7 +158,6 @@ export const getDashboard = async (req, res) => {
               thisMonthSummary[dataForPush.name] = dataForPush
             }
           }
-      
           )
       // console.log("List of month to be push")
       // console.log(sixMonthsBeforeRev)
