@@ -7,7 +7,7 @@ import morgan from "morgan";
 import databaseClient from "./services/database.mjs";
 import { v2 as cloudinary } from "cloudinary";
 import * as activityControllers from "./controllers/activityControllers.js";
-import * as user from "./controllers/userControllers.js";
+import * as userControllers from "./controllers/userControllers.js";
 import * as activityImageControllers from "./controllers/activityImageControllers.js";
 import auth from "./middleware/auth.js";
 import cookieParser from "cookie-parser";
@@ -70,12 +70,14 @@ webServer.delete(
   activityImageControllers.deleteActivityImage
 );
 
-webServer.post("/signup", user.userRegister);
-webServer.post("/login", user.userLogin);
-webServer.post("/logout", user.userLogout);
-webServer.get("/token", auth, user.tokenLogin);
-webServer.patch("/resetpassword", user.resetPassword);
-webServer.post("/forgotpassword", user.ForgotPassword);
+webServer.post("/signup", userControllers.userRegister);
+webServer.post("/login", userControllers.userLogin);
+webServer.post("/logout", userControllers.userLogout);
+webServer.get("/token", auth, userControllers.tokenLogin);
+webServer.patch("/resetpassword", userControllers.resetPassword);
+webServer.post("/forgotpassword", userControllers.ForgotPassword);
+
+webServer.get("/users/me", auth, userControllers.getUser);
 
 // initialize web server
 if (MODE === "development") {
