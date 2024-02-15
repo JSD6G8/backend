@@ -7,8 +7,8 @@ import {
   requestUserRepassword,
 } from "./userrequest.js";
 import nodemailer from "nodemailer";
-// import { sendEmail } from "./email.js";
-//เวลา deploy ลบบรรทัดที่(หรือ comment บรรทัดที่ log ค่า otp ออกมา) [ 285-286 , 315-316 ] **เปิดคอมเม้นที่ 298 (สำหรับส่ง email) Thank you!!
+
+const MODE = process.env.NODE_ENV || "production";
 
 //funtion
 
@@ -282,8 +282,10 @@ export const ForgotPassword = async (req, res) => {
   
       otp = generateOTP();
       ref = generateRef(6);
-      console.log("ref: ",ref);
-      console.log("otp: ",otp);
+      if (MODE === "development"){
+        console.log("ref: ",ref);
+        console.log("otp: ",otp);
+      }
       const hashedOtp = bcrypt.hashSync(otp, 10);
 
       const otpCreate = await databaseClient
@@ -295,7 +297,9 @@ export const ForgotPassword = async (req, res) => {
               userRef:ref,
               "createdAt": new Date()
             });
-      // await sendEmail(emailAddress, otp); // ส่ง OTP ไปยังอีเมล์ของผู้ใช้
+      if (MODE === "production") {
+        await sendEmail(emailAddress, otp); // ส่ง OTP ไปยังอีเมล์ของผู้ใช้
+      }
       return res.status(200).cookie("_llf", ref, {
         maxAge: 1800000 ,
         secure: true,
@@ -312,8 +316,10 @@ export const ForgotPassword = async (req, res) => {
           
     const compareOtp = await bcrypt.compareSync(user_otp,verificationData.userOtp);
     const checkRef = verificationData.userRef === userRef;
-    console.log("compareOtp is ",compareOtp);
-    console.log("compareRef is ",checkRef);
+    if(MODE === "development"){
+      console.log("compareOtp is ",compareOtp);
+      console.log("compareRef is ",checkRef);
+    }
 
 
     if (compareOtp && checkRef) {
