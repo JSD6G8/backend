@@ -59,12 +59,6 @@ webServer.get("/activities/:activityId", activityControllers.getActivity);
 webServer.post("/activities", activityControllers.createActivity);
 webServer.put("/activities/:activityId", activityControllers.updateActivity);
 webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
-
-
-
-
-
-
 webServer.post(
   "/activities/:activityId/image",
   upload.single("image"),
