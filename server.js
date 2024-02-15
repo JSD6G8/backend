@@ -59,10 +59,8 @@ webServer.get("/activities/:activityId", activityControllers.getActivity);
 webServer.post("/activities", activityControllers.createActivity);
 webServer.put("/activities/:activityId", activityControllers.updateActivity);
 webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
-webServer.post("/signup", user.userRegister);
-webServer.post("/login", user.userLogin);
-webServer.patch("/resetpassword", user.resetPassword);
-webServer.post("/forgotpassword", user.ForgotPassword);
+
+
 
 
 
@@ -82,6 +80,8 @@ webServer.post("/signup", user.userRegister);
 webServer.post("/login", user.userLogin);
 webServer.post("/logout", user.userLogout);
 webServer.get("/token", auth, user.tokenLogin);
+webServer.patch("/resetpassword", user.resetPassword);
+webServer.post("/forgotpassword", user.ForgotPassword);
 
 // initialize web server
 if (MODE === "development") {
