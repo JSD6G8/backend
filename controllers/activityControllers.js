@@ -196,6 +196,18 @@ export const deleteActivity = async (req, res) => {
   if (!ObjectId.isValid(req.params.activityId)) {
     return res.status(400).send("Invalid activityId");
   }
+  // GET DATE OF ACTIVITY from DB
+  const activity = await databaseClient
+    .db()
+    .collection("activities")
+    .findOne(
+      { _id: new ObjectId(req.params.activityId) },
+      { projection: 
+        { date: 1,
+          userId: 1
+        }
+      }      
+    ); 
 
   // delete activity from database
   const activityId = new ObjectId(req.params.activityId);
@@ -208,7 +220,7 @@ export const deleteActivity = async (req, res) => {
     res.send({
       result,
     });
-    updateMonthlySummary( activity.date , req.body.userId );
+    updateMonthlySummary( activity.date , activity.userId.toString());
   } catch (error) {
     res.status(500).send(error.message);
   }
