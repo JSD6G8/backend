@@ -269,7 +269,83 @@ export const userLogout = (req, res) => {
     .json({ message: "Logout success", status: "ok" });
 };
 
-//-------- reset password --------
+//-------- forgot password test--------
+export const ForgotPasswordTest = async (req, res) => {
+  let otp;
+  let ref;
+  const { emailAddress, user_otp } = req.body;
+  const userRef = req.cookies._llf
+  const { error } = requestUserRepassword.validate(req.body);
+  
+  if (error) {
+    return res.status(400).json({
+      message: error.details[0].message,
+      status: "Bad Request",
+    });
+  }
+  
+  try {
+    const oldUser = await databaseClient
+    .db()
+    .collection("users")
+    .findOne({ emailAddress });
+    
+    if (!oldUser) {
+      return res.status(400).json({ message: "Invalid email", status: "Bad Request" });
+    }
+    
+    if (!user_otp) {
+  
+      otp = generateOTP();
+      ref = generateRef(6);
+     
+        console.log("ref: ",ref);
+        console.log("otp: ",otp);
+     
+      const hashedOtp = bcrypt.hashSync(otp, 10);
+
+      const otpCreate = await databaseClient
+            .db()
+            .collection("verifications")
+            .insertOne({
+              emailAddress:emailAddress,
+              userOtp:hashedOtp,
+              userRef:ref,
+              "createdAt": new Date()
+            });
+     
+      return res.status(200).cookie("_llf", ref, {
+        maxAge: 1800000 ,
+        secure: true,
+        httpOnly: true,
+        sameSite: "none",
+      }).json({ message: "REF and OTP sended", status: "Ok" });
+    }
+
+    const verificationData = await databaseClient
+          .db()
+          .collection("verifications")
+          .findOne({userRef:userRef})
+
+          
+    const compareOtp = await bcrypt.compareSync(user_otp,verificationData.userOtp);
+    const checkRef = verificationData.userRef === userRef;
+    
+      console.log("compareOtp is ",compareOtp);
+      console.log("compareRef is ",checkRef);
+   
+
+
+    if (compareOtp && checkRef) {
+      return res.status(200).json({ message: "OTP is correct", status: "Ok" });
+    } else {
+      return res.status(400).json({ message: "Invalid OTP", status: "Bad Request" });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error", status: "Internal Server Error" ,error:error});
+  }
+};
+
 
 //-------- forgot password --------
 
