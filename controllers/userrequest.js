@@ -10,8 +10,13 @@ export const requestUser = Joi.object({
 })
 
 export const requestUserLogin = Joi.object({
-    emailAddress: Joi.string().email().required(),
+    emailAddress: Joi.string().email({ allowUnicode:false }).required(),
     password: Joi.string().required()
+})
+export const requestUserRepassword = Joi.object({
+    emailAddress: Joi.string().email({ allowUnicode:false }).required(),
+    user_otp: Joi.number(),
+    newPassword: Joi.string(),
 })
 
 

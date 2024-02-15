@@ -6,6 +6,32 @@ APIs for accessing database of LogLife web application.
 
 Access via <https://jsd6-loglife-backend.onrender.com>
 
+## Environment Variables
+For Production and Dev
+
+`DATABASE_URI`
+
+`SERVER_PORT`
+
+`NODE_ENV=development` for dev OR `NODE_ENV=production` for production
+
+`CLOUDINARY_CLOUD_NAME`
+
+`CLOUDINARY_API_KEY`
+
+`CLOUDINARY_API_SECRET`
+
+`TOKEN_KEY`
+
+`USER_EMAIL`
+
+`USER_PASSWORD`
+
+`USER_EMAIL_SECOND`
+
+`USER_PASSWORD_SECOND`
+
+
 ## API Endpoints
 
 | HTTP Verbs | Endpoints                | Action                                    |
@@ -142,9 +168,11 @@ for `POST` and `PUT` endpoints
 | HTML Code | Explaination | Included Message |
 |------|-------|------|
 | **200** | OK | *Response body* |
-|**201** | Entry Created | *Response body* |
-| **400** | Entries Not Found | `Invalid userId`, `Invalid activityId`, *Missing field details* |
-| **500** | Internal Error | Backend error message(s)
+|**201** | Created | *Response body* |
+| **301** | Moved Permanently | Unauthorized |
+| **400** | Bad Request | `Invalid userId`, `Invalid activityId`, *Missing field details* |
+| **409** | Conflict | User already exist. Please login |
+
 
 
 ## Authetication

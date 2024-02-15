@@ -7,10 +7,10 @@ import morgan from "morgan";
 import databaseClient from "./services/database.mjs";
 import { v2 as cloudinary } from "cloudinary";
 import * as activityControllers from "./controllers/activityControllers.js";
+import * as userControllers from "./controllers/userControllers.js";
 import * as activityImageControllers from "./controllers/activityImageControllers.js";
-import * as user from "./controllers/user.js"
-import auth from "./middleware/auth.js"
-import cookieParser from "cookie-parser"
+import auth from "./middleware/auth.js";
+import cookieParser from "cookie-parser";
 
 const MODE = process.env.NODE_ENV || "production";
 const PORT = process.env.SERVER_PORT || 3000;
@@ -38,10 +38,12 @@ async function uploadToCloudinary(req, res, next) {
 
 const webServer = express();
 //domain access
-webServer.use(cors({
-  origin: true,
-  credentials: true,
-}));
+webServer.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 webServer.use(express.json());
 webServer.use(helmet());
 webServer.use(morgan("dev"));
@@ -57,18 +59,25 @@ webServer.get("/activities/:activityId", activityControllers.getActivity);
 webServer.post("/activities", activityControllers.createActivity);
 webServer.put("/activities/:activityId", activityControllers.updateActivity);
 webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
-webServer.post("/signup", user.userRegister);
-webServer.post("/login", user.userLogin);
-webServer.get("/token",auth, user.tokenLogin);
-
-
 webServer.post(
   "/activities/:activityId/image",
   upload.single("image"),
   uploadToCloudinary,
   activityImageControllers.createActivityImage
 );
-webServer.delete("/activities/:activityId/image/:publicId", activityImageControllers.deleteActivityImage);
+webServer.delete(
+  "/activities/:activityId/image/:publicId",
+  activityImageControllers.deleteActivityImage
+);
+
+webServer.post("/signup", userControllers.userRegister);
+webServer.post("/login", userControllers.userLogin);
+webServer.post("/logout", userControllers.userLogout);
+webServer.get("/token", auth, userControllers.tokenLogin);
+webServer.patch("/resetpassword", userControllers.resetPassword);
+webServer.post("/forgotpassword", userControllers.ForgotPassword);
+
+webServer.get("/users/me", auth, userControllers.getUser);
 
 // initialize web server
 if (MODE === "development") {
