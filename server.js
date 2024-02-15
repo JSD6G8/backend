@@ -10,7 +10,6 @@ import * as activityControllers from "./controllers/activityControllers.js";
 import * as activityControllersV2 from "./controllers/activityControllersV2.js";
 import * as userControllers from "./controllers/userControllers.js";
 import * as activityImageControllers from "./controllers/activityImageControllers.js";
-import * as activityImageControllersV2 from "./controllers/activityImageControllersV2.js";
 import auth from "./middleware/auth.js";
 import cookieParser from "cookie-parser";
 
