@@ -9,7 +9,7 @@ import {
 import auth from "../middleware/auth.js";
 import nodemailer from "nodemailer";
 // import { sendEmail } from "./email.js";
-//เวลา deploy ลบบรรทัดที่(หรือ comment บรรทัดที่ log ค่า otp ออกมา) [ 265-266 , 295-296 ] **เปิดคอมเม้นที่ 278 (สำหรับส่ง email) Thank you!!
+//เวลา deploy ลบบรรทัดที่(หรือ comment บรรทัดที่ log ค่า otp ออกมา) [ 285-286 , 315-316 ] **เปิดคอมเม้นที่ 298 (สำหรับส่ง email) Thank you!!
 //funtion
 
 function generateRef(length) {
@@ -207,33 +207,49 @@ export const tokenLogin = (req, res) => {
 //TODO:-------- reset password --------
 
 export const resetPassword = async (req, res) => {
-  const {emailAddress, newPassword} = req.body
-  const { error } = requestUserRepassword.validate(req.body);
+  
+  try {
+    const {emailAddress, newPassword} = req.body
+    const { error } = requestUserRepassword.validate(req.body);
+    const userRef = req.cookies._llf || false
 
-  //validate
-  if (error) {
-    return res.status(400).json({
-      message: error.details[0].message,
-      status: "Bad Request",
-    });
-  }
-  const oldUser = await databaseClient
-    .db()
-    .collection("users")
-    .findOne({ emailAddress });
-  if (!oldUser) {
-    return res.status(400).json({
-      message: "not found user",
-      status: "Bad Request",
-    });
-  } 
-  const saltRounds = 12;
-  const hashedPassword = bcrypt.hashSync(newPassword, saltRounds);
-  const result = await databaseClient
+    //validate
+    if (error) {
+      return res.status(400).json({
+        message: error.details[0].message,
+        status: "Bad Request",
+      });
+    }
+    const verifyRef = await databaseClient
+      .db()
+      .collection("verifications")
+      .findOne({ userRef:userRef });
+  
+      if(!verifyRef) {
+        return res.status(400).json({message:"Bad Request",status:"Bad Request"})
+      }
+  
+    const oldUser = await databaseClient
       .db()
       .collection("users")
-      .updateOne({ emailAddress: emailAddress }, { $set: {password: hashedPassword }});
-  res.status(200).json({message:"Updata password success",status:"Ok"});
+      .findOne({ emailAddress });
+    if (!oldUser) {
+      return res.status(400).json({
+        message: "not found user",
+        status: "Bad Request",
+      });
+    } 
+    const saltRounds = 12;
+    const hashedPassword = bcrypt.hashSync(newPassword, saltRounds);
+    const result = await databaseClient
+        .db()
+        .collection("users")
+        .updateOne({ emailAddress: emailAddress }, { $set: {password: hashedPassword }});
+    res.status(200).json({message:"Password updated successfully",status:"Ok"});
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error", status: "Internal Server Error" ,error:error});
+  }
+
 };
 
 //TODO: -------- forgot password --------
@@ -285,7 +301,7 @@ export const ForgotPassword = async (req, res) => {
         secure: true,
         httpOnly: true,
         sameSite: "none",
-      }).json({ message: "REF and OTP Created", status: "Ok" });
+      }).json({ message: "REF and OTP sended", status: "Ok" });
     }
 
     const verificationData = await databaseClient
