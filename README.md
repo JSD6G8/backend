@@ -27,6 +27,11 @@ For Production and Dev
 
 `USER_PASSWORD`
 
+`USER_EMAIL_SECOND`
+
+`USER_PASSWORD_SECOND`
+
+
 ## API Endpoints
 
 | HTTP Verbs | Endpoints                | Action                                    |

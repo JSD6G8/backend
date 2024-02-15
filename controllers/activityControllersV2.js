@@ -1,7 +1,6 @@
 import databaseClient from "../services/database.mjs";
 import { ObjectId } from "mongodb";
-import { updateMonthlySummary } from "./dashboardController.js";
-import { requestSchema } from "./activityRequestSchema.js";
+import { requestSchemaV2 } from "./activityRequestSchema.js";
 
 /* 
   listActivities query parameters:
@@ -20,16 +19,7 @@ import { requestSchema } from "./activityRequestSchema.js";
     take: number: limit to [number] of docs,
 */
 export const listActivities = async (req, res) => {
-  // if (req.params.userId == undefined) {
-  //   req.params.userId = req.user.userId;
-  // }
-
-  // validate if userId is a valid ObjectId
-  if (!ObjectId.isValid(req.params.userId)) {
-    return res.status(400).send("Invalid userId");
-  }
-
-  const userId = new ObjectId(req.params.userId);
+  const userId = new ObjectId(req.user.userId);
 
   const { type, sort, skip, take } = req.query;
 
@@ -63,7 +53,6 @@ export const listActivities = async (req, res) => {
           $project: {
             activityId: "$_id",
             _id: 0,
-            userId: 1,
             title: 1,
             description: 1,
             type: 1,
@@ -84,14 +73,14 @@ export const listActivities = async (req, res) => {
   } catch (error) {
     res.status(500).send(error.message);
   }
-}
+};
 
 export const getActivity = async (req, res) => {
   // validate if activityId is a valid ObjectId
   if (!ObjectId.isValid(req.params.activityId)) {
     return res.status(400).send("Invalid activityId");
   }
-  
+
   const activityId = req.params.activityId;
 
   try {
@@ -100,44 +89,41 @@ export const getActivity = async (req, res) => {
       .collection("activities")
       .findOne(
         { _id: new ObjectId(activityId) },
-        { projection: 
-          { activityId: "$_id",
-            _id: 0, 
-            userId: 1, 
-            title: 1, 
-            description: 1, 
-            type: 1, 
-            startTime: 1, 
-            endTime: 1, 
-            date: 1, 
-            duration: 1, 
-            barometer: 1 ,
-            image: 1
-          } 
+        {
+          projection: {
+            activityId: "$_id",
+            _id: 0,
+            title: 1,
+            description: 1,
+            type: 1,
+            startTime: 1,
+            endTime: 1,
+            date: 1,
+            duration: 1,
+            barometer: 1,
+            image: 1,
+          },
         }
       );
     res.send(activity);
-    //here
   } catch (error) {
     res.status(500).send(error.message);
   }
 };
 
 export const createActivity = async (req, res) => {
-  // validiate request body
-  const { error } = requestSchema.validate(req.body);
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-
-  // validate if userId is a valid ObjectId
-  if (!ObjectId.isValid(req.body.userId)) {
+  if (!ObjectId.isValid(req.user.userId)) {
     return res.status(400).send("Invalid userId");
   }
 
-  // insert activity into database
-  const userId = new ObjectId(req.body.userId);
-  const activity = { ...req.body, userId };
+  const activity = { ...req.body};
+  
+  const { error } = requestSchemaV2.validate(activity);
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+  
+  activity.userId = new ObjectId(req.user.userId);
 
   try {
     const result = await databaseClient
@@ -147,33 +133,26 @@ export const createActivity = async (req, res) => {
     res.status(201).send({
       result,
     });
-    // console.log(activity.date)
-    // console.log(req.body.userId)
-    updateMonthlySummary( activity.date , req.body.userId );
   } catch {
     res.status(500).send(error.message);
   }
 };
 
 export const updateActivity = async (req, res) => {
-  // validiate request body
-  const { error } = requestSchema.validate(req.body);
+  const { error } = requestSchemaV2.validate(req.body);
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
 
-  // validate if userId is a valid ObjectId
-  if (!ObjectId.isValid(req.body.userId)) {
+  if (!ObjectId.isValid(req.user.userId)) {
     return res.status(400).send("Invalid userId");
   }
 
-  // validate if activityId is a valid ObjectId
   if (!ObjectId.isValid(req.params.activityId)) {
     return res.status(400).send("Invalid activityId");
   }
 
-  // update activity in database
-  const userId = new ObjectId(req.body.userId);
+  const userId = new ObjectId(req.user.userId);
   const activity = { ...req.body, userId };
   const activityId = new ObjectId(req.params.activityId);
 
@@ -185,30 +164,6 @@ export const updateActivity = async (req, res) => {
     res.send({
       result,
     });
-    updateMonthlySummary( activity.date , req.body.userId );
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-};
-
-export const deleteActivity = async (req, res) => {
-  // validate if activityId is a valid ObjectId
-  if (!ObjectId.isValid(req.params.activityId)) {
-    return res.status(400).send("Invalid activityId");
-  }
-
-  // delete activity from database
-  const activityId = new ObjectId(req.params.activityId);
-
-  try {
-    const result = await databaseClient
-      .db()
-      .collection("activities")
-      .deleteOne({ _id: activityId });
-    res.send({
-      result,
-    });
-    updateMonthlySummary( activity.date , req.body.userId );
   } catch (error) {
     res.status(500).send(error.message);
   }
