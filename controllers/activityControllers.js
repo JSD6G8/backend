@@ -1,5 +1,6 @@
 import databaseClient from "../services/database.mjs";
 import { ObjectId } from "mongodb";
+import { updateMonthlySummary } from "./dashboardController.js";
 import { requestSchema } from "./activityRequestSchema.js";
 
 /* 
@@ -116,6 +117,7 @@ export const getActivity = async (req, res) => {
         }
       );
     res.send(activity);
+    //here
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -145,6 +147,9 @@ export const createActivity = async (req, res) => {
     res.status(201).send({
       result,
     });
+    // console.log(activity.date)
+    // console.log(req.body.userId)
+    updateMonthlySummary( activity.date , req.body.userId );
   } catch {
     res.status(500).send(error.message);
   }
@@ -180,6 +185,7 @@ export const updateActivity = async (req, res) => {
     res.send({
       result,
     });
+    updateMonthlySummary( activity.date , req.body.userId );
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -202,6 +208,7 @@ export const deleteActivity = async (req, res) => {
     res.send({
       result,
     });
+    updateMonthlySummary( activity.date , req.body.userId );
   } catch (error) {
     res.status(500).send(error.message);
   }

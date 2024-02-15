@@ -12,6 +12,9 @@ import * as userControllers from "./controllers/userControllers.js";
 import * as activityImageControllers from "./controllers/activityImageControllers.js";
 import auth from "./middleware/auth.js";
 import cookieParser from "cookie-parser";
+import * as dashboardControllers from "./controllers/dashboardController.js";
+
+
 
 const MODE = process.env.NODE_ENV || "production";
 const PORT = process.env.SERVER_PORT || 3000;
@@ -55,7 +58,7 @@ webServer.get("/", async (req, res) => {
   res.send("Welcome to LogLife API");
 });
 
-// activites endpoints version 1
+// activities endpoints version 1
 webServer.get("/activities/user/:userId", activityControllers.listActivities);
 webServer.get("/activities/:activityId", activityControllers.getActivity);
 webServer.post("/activities", activityControllers.createActivity);
@@ -72,7 +75,7 @@ webServer.delete(
   activityImageControllers.deleteActivityImage
 );
 
-// activites endpoints version 2
+// activities endpoints version 2
 webServer.get("/v2/activities/user/me", auth, activityControllersV2.listActivities);
 webServer.get("/v2/activities/:activityId", auth, activityControllersV2.getActivity);
 webServer.post("/v2/activities", auth, activityControllersV2.createActivity);
@@ -90,6 +93,9 @@ webServer.delete(
   auth,
   activityImageControllers.deleteActivityImage
 );
+
+// dashboard endpoints
+webServer.get("/dashboard", auth, dashboardControllers.getDashboard);
 
 // users endpoints
 webServer.post("/signup", userControllers.userRegister);
