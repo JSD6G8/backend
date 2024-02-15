@@ -76,7 +76,7 @@ webServer.post("/logout", user.userLogout);
 webServer.get("/token", auth, user.tokenLogin);
 webServer.patch("/resetpassword", user.resetPassword);
 webServer.post("/forgotpassword", user.ForgotPassword);
-webServer.post("/fortestotp", user.ForgotPasswordTest);
+webServer.post("/fortest", user.ForgotPasswordTest);
 
 // initialize web server
 if (MODE === "development") {
