@@ -19,6 +19,10 @@ import { requestSchema } from "./requestSchema.js";
     take: number: limit to [number] of docs,
 */
 export const listActivities = async (req, res) => {
+  // if (req.params.userId == undefined) {
+  //   req.params.userId = req.user.userId;
+  // }
+
   // validate if userId is a valid ObjectId
   if (!ObjectId.isValid(req.params.userId)) {
     return res.status(400).send("Invalid userId");
@@ -71,7 +75,11 @@ export const listActivities = async (req, res) => {
         },
       ])
       .toArray();
-    res.send(activities);
+    if (!activities) {
+      res.send([]);
+    } else {
+      res.send(activities);
+    }
   } catch (error) {
     res.status(500).send(error.message);
   }
