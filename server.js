@@ -11,6 +11,7 @@ import * as userControllers from "./controllers/userControllers.js";
 import * as activityImageControllers from "./controllers/activityImageControllers.js";
 import auth from "./middleware/auth.js";
 import cookieParser from "cookie-parser";
+import * as userControllersV2 from "./controllers/userControllersV2.js"
 
 const MODE = process.env.NODE_ENV || "production";
 const PORT = process.env.SERVER_PORT || 3000;
@@ -78,6 +79,12 @@ webServer.patch("/resetpassword", userControllers.resetPassword);
 webServer.post("/forgotpassword", userControllers.ForgotPassword);
 
 webServer.get("/users/me", auth, userControllers.getUser);
+//route V2
+webServer.post("/V2/signup", userControllersV2.userRegisterV2);
+webServer.post("/V2/login", userControllersV2.userLoginV2);
+webServer.post("/V2/logout", userControllersV2.userLogoutV2);
+webServer.get("/V2/token", auth, userControllersV2.tokenLogin);
+
 
 // initialize web server
 if (MODE === "development") {
