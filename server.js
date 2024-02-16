@@ -7,12 +7,14 @@ import morgan from "morgan";
 import databaseClient from "./services/database.mjs";
 import { v2 as cloudinary } from "cloudinary";
 import * as activityControllers from "./controllers/activityControllers.js";
+import * as activityControllersV2 from "./controllers/activityControllersV2.js";
 import * as userControllers from "./controllers/userControllers.js";
+import * as userControllersV2 from "./controllers/userControllersV2.js"
 import * as activityImageControllers from "./controllers/activityImageControllers.js";
 import auth from "./middleware/auth.js";
 import authV2 from "./middleware/authV2.js";
 import cookieParser from "cookie-parser";
-import * as userControllersV2 from "./controllers/userControllersV2.js"
+import * as dashboardControllers from "./controllers/dashboardController.js";
 
 const MODE = process.env.NODE_ENV || "production";
 const PORT = process.env.SERVER_PORT || 3000;
@@ -56,6 +58,7 @@ webServer.get("/", async (req, res) => {
   res.send("Welcome to LogLife API");
 });
 
+// activities endpoints version 1
 webServer.get("/activities/user/:userId", activityControllers.listActivities);
 webServer.get("/activities/:activityId", activityControllers.getActivity);
 webServer.post("/activities", activityControllers.createActivity);
@@ -72,6 +75,29 @@ webServer.delete(
   activityImageControllers.deleteActivityImage
 );
 
+// activities endpoints version 2
+webServer.get("/v2/activities/user/me", auth, activityControllersV2.listActivities);
+webServer.get("/v2/activities/:activityId", auth, activityControllersV2.getActivity);
+webServer.post("/v2/activities", auth, activityControllersV2.createActivity);
+webServer.put("/v2/activities/:activityId", auth, activityControllersV2.updateActivity);
+webServer.delete("/v2/activities/:activityId", auth, activityControllers.deleteActivity);
+webServer.post(
+  "/v2/activities/:activityId/image",
+  auth,
+  upload.single("image"),
+  uploadToCloudinary,
+  activityImageControllers.createActivityImage
+);
+webServer.delete(
+  "/v2/activities/:activityId/image/:publicId",
+  auth,
+  activityImageControllers.deleteActivityImage
+);
+
+// dashboard endpoints
+webServer.get("/dashboard", auth, dashboardControllers.getDashboard);
+
+// users endpoints
 webServer.post("/signup", userControllers.userRegister);
 webServer.post("/login", userControllers.userLogin);
 webServer.post("/logout", userControllers.userLogout);
@@ -80,7 +106,8 @@ webServer.patch("/resetpassword", userControllers.resetPassword);
 webServer.post("/forgotpassword", userControllers.ForgotPassword);
 
 webServer.get("/users/me", auth, userControllers.getUser);
-//route V2
+
+// users endpoints version 2
 webServer.post("/V2/signup", userControllersV2.userRegisterV2);
 webServer.post("/V2/login", userControllersV2.userLoginV2);
 webServer.post("/V2/logout", userControllersV2.userLogoutV2);
