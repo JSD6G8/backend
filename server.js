@@ -9,12 +9,12 @@ import { v2 as cloudinary } from "cloudinary";
 import * as activityControllers from "./controllers/activityControllers.js";
 import * as activityControllersV2 from "./controllers/activityControllersV2.js";
 import * as userControllers from "./controllers/userControllers.js";
+import * as userControllersV2 from "./controllers/userControllersV2.js"
 import * as activityImageControllers from "./controllers/activityImageControllers.js";
 import auth from "./middleware/auth.js";
+import authV2 from "./middleware/authV2.js";
 import cookieParser from "cookie-parser";
 import * as dashboardControllers from "./controllers/dashboardController.js";
-
-
 
 const MODE = process.env.NODE_ENV || "production";
 const PORT = process.env.SERVER_PORT || 3000;
@@ -106,6 +106,13 @@ webServer.patch("/resetpassword", userControllers.resetPassword);
 webServer.post("/forgotpassword", userControllers.ForgotPassword);
 
 webServer.get("/users/me", auth, userControllers.getUser);
+
+// users endpoints version 2
+webServer.post("/V2/signup", userControllersV2.userRegisterV2);
+webServer.post("/V2/login", userControllersV2.userLoginV2);
+webServer.post("/V2/logout", userControllersV2.userLogoutV2);
+webServer.get("/V2/token", authV2, userControllersV2.tokenLogin);
+
 
 // initialize web server
 if (MODE === "development") {
