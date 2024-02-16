@@ -10,6 +10,7 @@ import * as activityControllers from "./controllers/activityControllers.js";
 import * as userControllers from "./controllers/userControllers.js";
 import * as activityImageControllers from "./controllers/activityImageControllers.js";
 import auth from "./middleware/auth.js";
+import authV2 from "./middleware/authV2.js";
 import cookieParser from "cookie-parser";
 import * as userControllersV2 from "./controllers/userControllersV2.js"
 
@@ -83,7 +84,7 @@ webServer.get("/users/me", auth, userControllers.getUser);
 webServer.post("/V2/signup", userControllersV2.userRegisterV2);
 webServer.post("/V2/login", userControllersV2.userLoginV2);
 webServer.post("/V2/logout", userControllersV2.userLogoutV2);
-webServer.get("/V2/token", auth, userControllersV2.tokenLogin);
+webServer.get("/V2/token", authV2, userControllersV2.tokenLogin);
 
 
 // initialize web server
