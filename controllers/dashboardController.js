@@ -57,24 +57,24 @@ const regex = new RegExp(monthString);  // expression for search month in databa
 // Precedure
 // -> call database to get activities data(exercise) targeted month
 const summaryData = await databaseClient
-  .db()
-  .collection("activities")
-  .find({ date : regex,
-            userId: new ObjectId(userId)
-          }
-        )
-  .toArray();    
+                .db()
+                .collection("activities")
+                .find({ date : regex,
+                          userId: new ObjectId(userId)
+                        }
+                      )
+                .toArray();    
 // send all exercise in Calculate function for calculate summary
 let calculatedMonthlySummary = calMonthlySummary(monthString,summaryData)
 calculatedMonthlySummary["userId"] = new ObjectId(userId)
 // check is there that month in the data set -> Update
 const sumDataInDB = await databaseClient
-.db()
-.collection("activities_sum")
-.findOne({ month : regex,
-            userId: new ObjectId(userId)
-        }
-      )   
+              .db()
+              .collection("activities_sum")
+              .findOne({ month : regex,
+                          userId: new ObjectId(userId)
+                      }
+                    )   
 // if not, create new object for that month -> Create
 if( sumDataInDB ){
   try {
@@ -110,83 +110,191 @@ else {
 
 export const getDashboard = async (req, res) => {
   
-    try {
-        const summaryData = await databaseClient
-        .db()
-        .collection("activities_sum")
-        .find({ userId: new ObjectId(req.user.userId) })
-        // .find({ userId: userId })   
-        .toArray();
-      let output = {};
-      let thisMonthSummary = {};
-      let thisMonthSummaryArray = [];
-      let today = new Date();
-      let year = today.getFullYear();
-      let month = today.getMonth() + 1; // getMonth() returns zero-based index, so we add 1
-      let formattedDate = year + "-" + (month < 10 ? "0" : "") + month; // E
-      // console.log("Summary Data")
-      // console.log(summaryData)
-      
+  let output = {};
+  let summaryData = []
+  
+  try {
+      summaryData = await databaseClient
+      .db()
+      .collection("activities_sum")
+      .find({ userId: new ObjectId(req.user.userId) })
+      // .find({ userId: userId })   
+      .toArray(); 
+  }
+  catch (error) {
+    res.status(500).send(error.message);
+  }
+
+  let thisMonthSummary = {};
+  let thisMonthSummaryArray = [];
+  let today = new Date();
+  let year = today.getFullYear();
+  let month = today.getMonth() + 1; // getMonth() returns zero-based index, so we add 1
+  let formattedDate = year + "-" + (month < 10 ? "0" : "") + month; // E
+  // console.log("Summary Data")
+  // console.log(summaryData)
+  
       // set Target month data to be output data main part
-      summaryData.map( data => {
-          if( data["month"] == formattedDate ) {
-            output = data // data of target month only 
+  summaryData.map( data => {
+      if( data["month"] == formattedDate ) {
+        output = data // data of target month only 
+      }
+    })
+    let temp = new Date()
+    let sixMonthsBefore = []
+    let sixMonthsBeforeRev  = []
+    let sixMonthsBeforeYearMonth = []
+    for (let i = 0; i <= 5; i++) {
+      const monthIndex = (today.getMonth() - i + 12) % 12; 
+      // Ensure to loop around to the previous year if needed
+      const year_ = today.getMonth() < monthIndex ? today.getFullYear() - 1 : today.getFullYear();
+      sixMonthsBefore.push( MONTH_NUM_TO_NAME[monthIndex] )
+      sixMonthsBeforeYearMonth.push( year_ + "-" + (monthIndex+1 < 10 ? "0" : "") + (monthIndex+1))
+    } 
+    // console.log(sixMonthsBeforeYearMonth)
+    sixMonthsBeforeRev = sixMonthsBefore.reverse()// [ 'July', 'June', 'May', 'April', 'March', 'February']
+    //
+    summaryData.map( monthlyData => {
+          // Weak position here to convert month number to month name
+          let readDataMonth = new Date(monthlyData.month + "-01")
+          if(  sixMonthsBeforeYearMonth.includes(monthlyData.month)) {
+            let dataForPush  = {name : MONTH_NUM_TO_NAME[ readDataMonth.getMonth() ]
+                                , minute : monthlyData.sum_minutes}
+            // console.log(readDataMonth.getMonth()+1)
+            // console.log(dataForPush)
+            thisMonthSummary[dataForPush.name] = dataForPush
           }
-        })
-      let temp = new Date()
-      let sixMonthsBefore = []
-      let sixMonthsBeforeRev  = []
-      let sixMonthsBeforeYearMonth = []
-      for (let i = 0; i <= 5; i++) {
-        const monthIndex = (today.getMonth() - i + 12) % 12; 
-        // Ensure to loop around to the previous year if needed
-        const year_ = today.getMonth() < monthIndex ? today.getFullYear() - 1 : today.getFullYear();
-        sixMonthsBefore.push( MONTH_NUM_TO_NAME[monthIndex] )
-        sixMonthsBeforeYearMonth.push( year_ + "-" + (monthIndex+1 < 10 ? "0" : "") + (monthIndex+1))
-      } 
-      console.log(sixMonthsBeforeYearMonth)
-      sixMonthsBeforeRev = sixMonthsBefore.reverse()// [ 'July', 'June', 'May', 'April', 'March', 'February']
-      //
-      summaryData.map( monthlyData => {
-            // Weak position here to convert month number to month name
-            let readDataMonth = new Date(monthlyData.month + "-01")
-            if(  sixMonthsBeforeYearMonth.includes(monthlyData.month)) {
-              let dataForPush  = {name : MONTH_NUM_TO_NAME[ readDataMonth.getMonth() ]
-                                  , minute : monthlyData.sum_minutes}
-              console.log(readDataMonth.getMonth()+1)
-              console.log(dataForPush)
-              thisMonthSummary[dataForPush.name] = dataForPush
+        }
+        )
+    // console.log("List of month to be push")
+    // console.log(sixMonthsBeforeRev)
+    // console.log("List of month to be push")
+    // console.log(thisMonthSummary)
+    sixMonthsBeforeRev.map( (monthName, month ) => {
+      // console.log(monthName) 
+      // console.log(month)
+      if( thisMonthSummary[monthName] ) {
+        thisMonthSummaryArray.push(thisMonthSummary[monthName])
+      }
+      else{
+        thisMonthSummaryArray.push({name : monthName, minute : 0})
+      }
+    })
+    output["data_for_monthly_chart"] = thisMonthSummaryArray
+    // res.json(output);
+
+    let barometerData = []
+    try {
+      barometerData = await databaseClient
+      .db()
+      .collection("activities")
+      .aggregate(
+        [
+          {
+            '$match': {
+              'userId': new ObjectId('65ccc6a224434e296483190f')
+            }
+          }, {
+            '$project': {
+              '_id': 1, 
+              'combinedDateTime': {
+                '$toDate': {
+                  '$concat': [
+                    '$date', 'T', '$startTime'
+                  ]
+                }
+              }, 
+              'barometer': {
+                '$multiply': [
+                  {
+                    '$toInt': '$barometer'
+                  }, 20
+                ]
+              }
+            }
+          }, {
+            '$sort': {
+              'combinedDateTime': -1
+            }
+          }, {
+            '$limit': 30
+          }, {
+            '$sort': {
+              'combinedDateTime': 1
+            }
+          }, {
+            '$group': {
+              '_id': null, 
+              'values': {
+                '$push': '$barometer'
+              }
+            }
+          }, {
+            '$project': {
+              '_id': 0, 
+              'values': 1
             }
           }
-          )
-      // console.log("List of month to be push")
-      // console.log(sixMonthsBeforeRev)
-      console.log("List of month to be push")
-      console.log(thisMonthSummary)
-      sixMonthsBeforeRev.map( (monthName, month ) => {
-        // console.log(monthName) 
-        // console.log(month)
-        if( thisMonthSummary[monthName] ) {
-          thisMonthSummaryArray.push(thisMonthSummary[monthName])
-        }
-        else{
-          thisMonthSummaryArray.push({name : monthName, minute : 0})
-        }
-      })
-      output["data_for_monthly_chart"] = thisMonthSummaryArray
-      // res.json(output);
-      console.log("OUTPUT")
-      console.log(output)
-      if (!output) {
-        res.send([]);  // re design if found problem
-      } else {
-        res.json(output);
-      }
+        ])
+      .toArray();
     }
     catch (error) {
       res.status(500).send(error.message);
     }
+    // barometerData.map( data => {
+      // take only barometer value convert to array of integer)
+
+    output["data_for_barometer_chart"] = barometerData
+
+    let lastTenDaysData = []
+    
+    try {
+        var date = new Date();
+        date.setDate(date.getDate() - 20);
+        // console.log(date)
+
+      lastTenDaysData = await databaseClient
+    .db()
+    .collection("activities")
+    .aggregate(
+        [
+            {
+              '$addFields': {
+                'parsedStartDate': {
+                  '$toDate': '$date'
+                }
+              }
+            }, {
+              '$match': {
+                'userId': new ObjectId(req.user.userId), 
+                'parsedStartDate': {
+                  '$gte': new Date(date)
+                }
+              }
+            }, {
+              '$project': {
+                '_id': 0, 
+                'date': 1, 
+              }
+            }
+          ])
+    .toArray();
   }
+  catch (error) {
+    res.status(500).send(error.message);
+  }
+  output["data_for_last_ten_days"] = lastTenDaysData
+
+  // console.log("OUTPUT")
+  // console.log(output)
+  if (!output) {
+    res.send([]);  // re design if found problem
+  } else {
+    res.json(output);
+  }
+
+  
+}
 
 /* // Template for create new response
 
