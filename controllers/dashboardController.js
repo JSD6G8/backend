@@ -192,7 +192,7 @@ export const getDashboard = async (req, res) => {
         [
           {
             '$match': {
-              'userId': new ObjectId('65ccc6a224434e296483190f')
+              'userId': new ObjectId(req.user.userId)
             }
           }, {
             '$project': {
