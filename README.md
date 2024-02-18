@@ -1,8 +1,8 @@
-# LogLife APIs
+# LogLife API
 
 ## Overview
 
-APIs for accessing database of LogLife web application.
+API for accessing database of LogLife web application.
 
 Access via <https://jsd6-loglife-backend.onrender.com>
 
@@ -32,7 +32,137 @@ For Production and Dev
 `USER_PASSWORD_SECOND`
 
 
-## API Endpoints
+## CRUD API Endpoints
+
+| HTTP Verbs | Endpoints                | Action                                    |
+| ---------- | ------------------------ | ----------------------------------------- |
+| **GET**    | /v2/activities/user/me | To **retrieve all activities** of the logged in user  |
+| **GET**    | /v2/activities/:activityId  | To **retrieve each activity** information |
+| **POST**   | /v2/activities              | To create a new activity                  |
+| **PUT**    | /v2/activities/:activityId  | To edit information on each activity      |
+| **DELETE** | /v2/activities/:activityId  | To delete a single activity               |
+
+All of these endpoints require user authentication.
+
+### Query Parameters
+
+for `GET` on `/v2/activities/user/:userId`
+
+| Query Params | Value                                                     | Action                                                        |
+| ------------ | --------------------------------------------------------- | ------------------------------------------------------------- |
+| **?type**    | `null`                                                    | To retrieve activities **from all types**                     |
+|              | `Running`, `Cycling`, `Swimming`, `Walking`, `Hiking`, `Other` | To retrieve activities **from each type**                     |
+| **?sort**    | `null`   / `date-desc`                                                  | To retrieve all activities **descending by date + startTime** |
+|              | `date-asc`                                                | To retrieve all activities **ascending by date + startTime** |
+| **?skip**    | `null`                                                    | To skip 0 entry
+|              | *number*                                                  | To skip *[number]* of entries                                      |
+| **?take**    | `null`                                                    | To take *20* entries                          |
+|              | *number*                                                  | To take *[number]* of entries                          |
+
+### Request Body
+
+for `POST` and `PUT` endpoints
+
+```
+{
+  "title": string,
+  "description": string,
+  "type": string,
+  "startTime": string,
+  "endTime": string,
+  "date": string,
+  "duration": {
+    "hour": number,
+    "minute": number
+  },
+  "barometer": string
+}
+```
+
+### Response Body
+
+#### GET
+>
+> ##### All Activities
+>
+> ```
+> [
+>  {
+>    "activityId": string,
+>    "title": string,
+>    "description": string,
+>    "type": string,
+>    "startTime": string,
+>    "endTime": string,
+>    "date": string,
+>    "duration": {
+>      "hour": number,
+>      "minute": number
+>    },
+>    "barometer": string
+> },
+>  {
+>    ...
+>  }
+>]
+>```
+
+> ##### Single Activity
+>
+> ```
+>  {
+>    "activityId": string,
+>    "title": string,
+>    "description": string,
+>    "type": string,
+>    "startTime": string,
+>    "endTime": string,
+>    "date": string,
+>    "duration": {
+>      "hour": number,
+>      "minute": number
+>    },
+>    "barometer": string
+> }
+>```
+>
+#### POST
+>
+>```
+>{
+>  "result": {
+>    "acknowledged": boolean,
+>    "insertedId": string
+>  }
+>}
+>```
+
+#### PUT
+>
+>```
+>{
+>"result": {
+>    "acknowledged": boolean,
+>    "modifiedCount": int,
+>    "upsertedId": string | null,
+>    "upsertedCount": int,
+>    "matchedCount": int
+>  }
+>}
+>```
+>
+#### DELETE
+>
+>```
+>{
+>  "result": {
+>    "acknowledged": boolean,
+>    "deletedCount": int
+>  }
+>}
+>```
+
+## Deprecated CRUD API Endpoints
 
 | HTTP Verbs | Endpoints                | Action                                    |
 | ---------- | ------------------------ | ----------------------------------------- |
@@ -42,7 +172,7 @@ For Production and Dev
 | **PUT**    | /activities/:activityId  | To edit information on each activity      |
 | **DELETE** | /activities/:activityId  | To delete a single activity               |
 
-## Query Parameters
+### Query Parameters
 
 for `GET` on `/activities/user/:userId`
 
@@ -57,7 +187,7 @@ for `GET` on `/activities/user/:userId`
 | **?take**    | `null`                                                    | To take *20* entries                          |
 |              | *number*                                                  | To take *[number]* of entries                          |
 
-## Request Body
+### Request Body
 
 for `POST` and `PUT` endpoints
 
@@ -78,11 +208,11 @@ for `POST` and `PUT` endpoints
 }
 ```
 
-## Response Body
+### Response Body
 
-### GET
+#### GET
 >
-> #### All Activities
+> ##### All Activities
 >
 > ```
 > [
@@ -107,7 +237,7 @@ for `POST` and `PUT` endpoints
 >]
 >```
 
-> #### Single Activity
+> ##### Single Activity
 >
 > ```
 >  {
@@ -127,7 +257,7 @@ for `POST` and `PUT` endpoints
 > }
 >```
 >
-### POST
+#### POST
 >
 >```
 >{
@@ -138,7 +268,7 @@ for `POST` and `PUT` endpoints
 >}
 >```
 
-### PUT
+#### PUT
 >
 >```
 >{
@@ -152,7 +282,7 @@ for `POST` and `PUT` endpoints
 >}
 >```
 >
-### DELETE
+#### DELETE
 >
 >```
 >{
