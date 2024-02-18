@@ -59,21 +59,21 @@ webServer.get("/", async (req, res) => {
 });
 
 // activities endpoints version 1
-webServer.get("/activities/user/:userId", activityControllers.listActivities);
-webServer.get("/activities/:activityId", activityControllers.getActivity);
-webServer.post("/activities", activityControllers.createActivity);
-webServer.put("/activities/:activityId", activityControllers.updateActivity);
-webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
-webServer.post(
-  "/activities/:activityId/image",
-  upload.single("image"),
-  uploadToCloudinary,
-  activityImageControllers.createActivityImage
-);
-webServer.delete(
-  "/activities/:activityId/image/:publicId",
-  activityImageControllers.deleteActivityImage
-);
+// webServer.get("/activities/user/:userId", activityControllers.listActivities);
+// webServer.get("/activities/:activityId", activityControllers.getActivity);
+// webServer.post("/activities", activityControllers.createActivity);
+// webServer.put("/activities/:activityId", activityControllers.updateActivity);
+// webServer.delete("/activities/:activityId", activityControllers.deleteActivity);
+// webServer.post(
+//   "/activities/:activityId/image",
+//   upload.single("image"),
+//   uploadToCloudinary,
+//   activityImageControllers.createActivityImage
+// );
+// webServer.delete(
+//   "/activities/:activityId/image/:publicId",
+//   activityImageControllers.deleteActivityImage
+// );
 
 // activities endpoints version 2
 webServer.get("/v2/activities/user/me", auth, activityControllersV2.listActivities);
@@ -108,10 +108,10 @@ webServer.post("/forgotpassword", userControllers.ForgotPassword);
 webServer.get("/users/me", auth, userControllers.getUser);
 
 // users endpoints version 2
-webServer.post("/V2/signup", userControllersV2.userRegisterV2);
-webServer.post("/V2/login", userControllersV2.userLoginV2);
-webServer.post("/V2/logout", userControllersV2.userLogoutV2);
-webServer.get("/V2/token", authV2, userControllersV2.tokenLogin);
+// webServer.post("/V2/signup", userControllersV2.userRegisterV2);
+// webServer.post("/V2/login", userControllersV2.userLoginV2);
+// webServer.post("/V2/logout", userControllersV2.userLogoutV2);
+// webServer.get("/V2/token", authV2, userControllersV2.tokenLogin);
 
 
 // initialize web server
